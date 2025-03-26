@@ -46,16 +46,38 @@ export function MovieRecommendations({
             key={index}
             className={`${
               isDarkMode ? "bg-[#faf9f6]/10" : "bg-[#0b1215]/10"
-            } backdrop-blur-sm rounded-lg overflow-hidden shadow-lg transition-transform hover:scale-105`}
+            } backdrop-blur-sm rounded-lg overflow-hidden shadow-lg transition-transform hover:scale-105 flex flex-col`}
           >
-            {movie.posterUrl && (
-              <img
-                src={movie.posterUrl}
-                alt={`${movie.title} poster`}
-                className="w-full h-auto object-contain bg-black/20"
-              />
-            )}
-            <div className="p-4">
+            <div className="w-full aspect-[2/3] flex-shrink-0 bg-black/20 flex items-center justify-center">
+              {movie.posterUrl ? (
+                <img
+                  src={movie.posterUrl}
+                  alt={`${movie.title} poster`}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-800">
+                  <div className="text-center p-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-12 h-12 mx-auto mb-2 text-gray-400"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                      />
+                    </svg>
+                    <p className="text-gray-400 text-sm">Image not available</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="p-4 flex-grow">
               <h3
                 className={`${
                   isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
@@ -90,10 +112,36 @@ export function MovieRecommendations({
               <p
                 className={`${
                   isDarkMode ? "text-[#faf9f6]/80" : "text-[#0b1215]/80"
-                } text-sm md:text-base`}
+                } text-sm md:text-base mb-4`}
               >
                 {movie.reason}
               </p>
+              <a
+                href={`https://www.themoviedb.org/movie/${movie.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center gap-2 text-sm ${
+                  isDarkMode
+                    ? "text-[#0ee65e] hover:text-[#0ee65e]/80"
+                    : "text-[#0baf47] hover:text-[#0baf47]/80"
+                } transition-colors`}
+              >
+                <span>View on TMDB</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+                  />
+                </svg>
+              </a>
             </div>
           </div>
         ))}

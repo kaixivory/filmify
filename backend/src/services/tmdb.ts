@@ -14,6 +14,7 @@ interface TMDBMovieResponse {
 }
 
 interface MovieDetails {
+  id: number;
   posterUrl: string | null;
   rating: number;
   genres: string[];
@@ -52,6 +53,7 @@ export async function getMovieDetails(movieId: number): Promise<MovieDetails> {
 
     const movie = response.data;
     return {
+      id: movie.id,
       posterUrl: movie.poster_path
         ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
         : null,

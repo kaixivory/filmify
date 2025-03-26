@@ -20,6 +20,7 @@ const openai = new OpenAI({
 });
 
 export interface MovieRecommendation {
+  id: number;
   title: string;
   year: number;
   reason: string;
@@ -95,6 +96,7 @@ Format the response as a JSON array of objects with "title", "year", and "reason
 
           return {
             ...rec,
+            id: movie.id,
             ...details,
           };
         } catch (error) {

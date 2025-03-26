@@ -1,4 +1,5 @@
 export interface MovieRecommendation {
+  id: number;
   title: string;
   year: number;
   reason: string;

@@ -22,7 +22,7 @@ const PORT = process.env.PORT || 5000;
 
 // CORS configuration
 const corsOptions = {
-  origin: true, // Allow all origins in development
+  origin: ["https://filmify-ai.onrender.com", "http://localhost:3000"],
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,

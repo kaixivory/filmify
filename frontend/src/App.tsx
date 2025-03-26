@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { MovieRecommendations } from "./components/MovieRecommendations";
 import { MovieRecommendation } from "./types/movie";
-
-const API_URL = "http://localhost:5000";
+import { API_URL } from "./config";
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -130,23 +129,23 @@ function App() {
           </svg>
         )}
       </button>
-      <div className="flex flex-col justify-center items-center min-h-screen py-8 gap-4">
+      <div className="flex flex-col justify-center items-center min-h-screen py-8 px-4 md:px-8 gap-4">
         <h1
           className={`${
             isDarkMode ? "text-[#0ee65e]" : "text-[#0baf47]"
-          } font-poppins text-6xl font-extrabold mb-2 transition-colors duration-300`}
+          } font-poppins text-4xl md:text-6xl font-extrabold mb-2 transition-colors duration-300 text-center`}
         >
           filmify.ai
         </h1>
         <h2
           className={`${
             isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
-          } font-montserrat text-xl mb-4 transition-colors duration-300`}
+          } font-montserrat text-lg md:text-xl mb-4 transition-colors duration-300 text-center px-4`}
         >
           🎼🎵 discover movies inspired by your favorite music 🎥🍿
         </h2>
         <hr
-          className={`w-2/3 ${
+          className={`w-full md:w-2/3 ${
             isDarkMode ? "border-[#faf9f6]" : "border-[#0b1215]"
           } mb-4 border-[1.25px] transition-colors duration-300`}
         />
@@ -160,7 +159,7 @@ function App() {
               handleGenerate();
             }
           }}
-          className={`rounded-full px-4 py-2 w-1/2 ${
+          className={`rounded-full px-4 py-2 w-full md:w-1/2 ${
             isDarkMode
               ? "bg-[#faf9f6] text-[#0b1215]"
               : "bg-[#0b1215] text-[#faf9f6]"
@@ -201,7 +200,7 @@ function App() {
               : "bg-[#0baf47] text-[#faf9f6]"
           } px-8 py-2 rounded-full font-semibold hover:opacity-90 transition-all duration-300 ${
             isLoading ? "opacity-50 cursor-not-allowed" : ""
-          } flex items-center gap-2`}
+          } flex items-center gap-2 w-full md:w-auto justify-center`}
         >
           {isLoading ? (
             <>
@@ -232,7 +231,7 @@ function App() {
           )}
         </button>
         <hr
-          className={`w-2/3 ${
+          className={`w-full md:w-2/3 ${
             isDarkMode ? "border-[#faf9f6]" : "border-[#0b1215]"
           } my-4 border-[1.25px] transition-colors duration-300`}
         />
@@ -244,15 +243,15 @@ function App() {
           isDarkMode={isDarkMode}
         />
 
-        <div className="mt-16 mb-24 space-y-8 px-4 md:px-8 lg:px-12">
+        <div className="mt-16 mb-24 space-y-8 px-4 md:px-8 lg:px-12 w-full">
           <h2
             className={`${
               isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
-            } text-2xl font-bold text-center mb-6`}
+            } text-xl md:text-2xl font-bold text-center mb-6`}
           >
             How it works
           </h2>
-          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             <div
               className={`${
                 isDarkMode ? "bg-[#faf9f6]/10" : "bg-[#0b1215]/10"
@@ -261,14 +260,14 @@ function App() {
               <h3
                 className={`${
                   isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
-                } text-xl font-semibold mb-2`}
+                } text-lg md:text-xl font-semibold mb-2`}
               >
                 1. Share Your Playlist
               </h3>
               <p
                 className={`${
                   isDarkMode ? "text-[#faf9f6]/80" : "text-[#0b1215]/80"
-                }`}
+                } text-sm md:text-base`}
               >
                 Copy and paste your Spotify playlist link into the input box
                 above.
@@ -282,14 +281,14 @@ function App() {
               <h3
                 className={`${
                   isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
-                } text-xl font-semibold mb-2`}
+                } text-lg md:text-xl font-semibold mb-2`}
               >
                 2. Analyze Mood
               </h3>
               <p
                 className={`${
                   isDarkMode ? "text-[#faf9f6]/80" : "text-[#0b1215]/80"
-                }`}
+                } text-sm md:text-base`}
               >
                 Our AI analyzes the songs, artists, and overall vibe of your
                 playlist.
@@ -303,14 +302,14 @@ function App() {
               <h3
                 className={`${
                   isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
-                } text-xl font-semibold mb-2`}
+                } text-lg md:text-xl font-semibold mb-2`}
               >
                 3. Get Recommendations
               </h3>
               <p
                 className={`${
                   isDarkMode ? "text-[#faf9f6]/80" : "text-[#0b1215]/80"
-                }`}
+                } text-sm md:text-base`}
               >
                 Receive personalized movie recommendations that match your
                 playlist's energy.
@@ -322,7 +321,7 @@ function App() {
       <footer
         className={`absolute bottom-4 w-full text-center ${
           isDarkMode ? "text-gray-300" : "text-gray-500"
-        } font-montserrat text-xs transition-colors duration-300`}
+        } font-montserrat text-xs transition-colors duration-300 px-4`}
       >
         Made with {isDarkMode ? "🤍" : "🖤"} by Kailani
       </footer>

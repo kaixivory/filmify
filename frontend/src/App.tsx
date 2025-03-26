@@ -57,13 +57,15 @@ function App() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
+        throw new Error(errorData.error || `Server error: ${response.status}`);
       }
 
       const data = await response.json();
       console.log("Response from backend:", data);
+
+      if (!data.recommendations || data.recommendations.length === 0) {
+        throw new Error("No recommendations were generated. Please try again.");
+      }
 
       setRecommendations(data.recommendations);
     } catch (err) {
@@ -74,13 +76,19 @@ function App() {
           err.message.includes("NetworkError")
         ) {
           setError(
-            "Cannot connect to the backend server. Please make sure it's running on port 5000."
+            "Cannot connect to the server. Please try again in a few moments."
           );
+        } else if (err.message.includes("Playlist not found")) {
+          setError(
+            "Could not find the Spotify playlist. Please check the link and try again."
+          );
+        } else if (err.message.includes("No recommendations")) {
+          setError(err.message);
         } else {
           setError(err.message);
         }
       } else {
-        setError("An unexpected error occurred");
+        setError("An unexpected error occurred. Please try again.");
       }
     } finally {
       setIsLoading(false);

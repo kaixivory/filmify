@@ -64,6 +64,10 @@ export async function getPlaylistDetails(
       duration_ms: item.track.duration_ms,
     }));
 
+    if (tracks.length === 0) {
+      throw new Error("The playlist is empty");
+    }
+
     return {
       name: playlist.name,
       tracks,
@@ -71,14 +75,24 @@ export async function getPlaylistDetails(
     };
   } catch (error) {
     if (error && typeof error === "object" && "response" in error) {
-      const axiosError = error as { response?: { status: number } };
+      const axiosError = error as { response?: { status: number; data?: any } };
       if (axiosError.response?.status === 404) {
-        throw new Error("Playlist not found");
+        throw new Error(
+          "Playlist not found. Please check if the link is correct and the playlist is public."
+        );
       } else if (axiosError.response?.status === 401) {
-        throw new Error("Invalid or expired Spotify access token");
+        throw new Error(
+          "Spotify authentication failed. Please try again in a few moments."
+        );
+      } else if (axiosError.response?.status === 403) {
+        throw new Error(
+          "This playlist is private. Please make it public or share a different playlist."
+        );
       }
     }
-    throw new Error("Failed to fetch playlist details");
+    throw new Error(
+      "Failed to fetch playlist details. Please try again in a few moments."
+    );
   }
 }
 

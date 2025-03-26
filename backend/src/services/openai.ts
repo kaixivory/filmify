@@ -61,7 +61,13 @@ Format the response as a JSON array of objects with "title", "year", and "reason
     }
 
     // Clean and parse the content
-    const cleanedContent = content.replace(/```json\n?|\n?```/g, "").trim();
+    // First, try to find the JSON array in the content
+    const jsonMatch = content.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) {
+      throw new Error("No valid JSON array found in the response");
+    }
+
+    const cleanedContent = jsonMatch[0].trim();
     console.log("Cleaned content:", cleanedContent);
 
     const recommendations = JSON.parse(cleanedContent);

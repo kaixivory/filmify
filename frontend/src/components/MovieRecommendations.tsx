@@ -77,7 +77,7 @@ export function MovieRecommendations({
                 </div>
               )}
             </div>
-            <div className="p-4 flex-grow">
+            <div className="p-4 flex flex-col flex-grow">
               <h3
                 className={`${
                   isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
@@ -85,27 +85,69 @@ export function MovieRecommendations({
               >
                 {movie.title} ({movie.year})
               </h3>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-yellow-400">★</span>
-                <span
-                  className={`${
-                    isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
-                  } text-sm`}
-                >
-                  {movie.rating.toFixed(1)}
-                </span>
+              <div className="flex items-center gap-4 mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-yellow-400">★</span>
+                  <span
+                    className={`${
+                      isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
+                    } text-sm`}
+                  >
+                    {movie.rating.toFixed(1)}
+                  </span>
+                </div>
+                {movie.runtime && (
+                  <div className="flex items-center gap-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className={`w-4 h-4 ${
+                        isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
+                      }`}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span
+                      className={`${
+                        isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
+                      } text-sm`}
+                    >
+                      {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
+                    </span>
+                  </div>
+                )}
+                {movie.ageRating && (
+                  <div className="flex items-center">
+                    <span
+                      className={`${
+                        isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
+                      } text-xs border ${
+                        isDarkMode ? "border-[#faf9f6]" : "border-[#0b1215]"
+                      } px-1.5 py-0.5 rounded`}
+                    >
+                      {movie.ageRating}
+                    </span>
+                  </div>
+                )}
               </div>
               <div className="flex flex-wrap gap-2 mb-3">
-                {movie.genres.map((genre, idx) => (
+                {movie.genres.map((genre) => (
                   <span
-                    key={idx}
+                    key={genre.id}
                     className={`${
                       isDarkMode
                         ? "bg-[#faf9f6]/20 text-[#faf9f6]"
                         : "bg-[#0b1215]/20 text-[#0b1215]"
                     } px-2 py-1 rounded-full text-xs`}
                   >
-                    {genre}
+                    {genre.name}
                   </span>
                 ))}
               </div>

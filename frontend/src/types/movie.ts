@@ -5,5 +5,7 @@ export interface MovieRecommendation {
   reason: string;
   posterUrl: string | null;
   rating: number;
-  genres: string[];
+  genres: Array<{ id: number; name: string }>;
+  runtime: number | null;
+  ageRating: string | null;
 }

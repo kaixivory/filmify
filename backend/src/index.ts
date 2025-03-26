@@ -5,6 +5,7 @@ dotenv.config();
 import express, { Request, Response } from "express";
 import { getPlaylistDetails } from "./services/spotify";
 import { generateMovieRecommendations } from "./services/openai";
+import { getGenres } from "./services/tmdb";
 import cors from "cors";
 
 // Debug logging
@@ -42,7 +43,7 @@ app.get("/", (req: Request, res: Response) => {
 app.post("/api/playlist", (req: Request, res: Response) => {
   const handleRequest = async () => {
     try {
-      const { spotifyLink, numRecs = 5 } = req.body;
+      const { spotifyLink, numRecs = 5, selectedGenres = [] } = req.body;
 
       if (!spotifyLink) {
         return res.status(400).json({ error: "Spotify link is required" });
@@ -54,7 +55,8 @@ app.post("/api/playlist", (req: Request, res: Response) => {
 
       const movieRecommendations = await generateMovieRecommendations(
         playlistDetails,
-        numRecs
+        numRecs,
+        selectedGenres
       );
       console.log("✓ Movie recommendations generated");
 
@@ -76,6 +78,16 @@ app.post("/api/playlist", (req: Request, res: Response) => {
   };
 
   handleRequest();
+});
+
+app.get("/api/genres", async (req: Request, res: Response) => {
+  try {
+    const genres = await getGenres();
+    res.json(genres);
+  } catch (error) {
+    console.error("Error fetching genres:", error);
+    res.status(500).json({ error: "Failed to fetch genres" });
+  }
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,7 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MovieRecommendations } from "./components/MovieRecommendations";
+import { GenreSelector } from "./components/GenreSelector";
 import { MovieRecommendation } from "./types/movie";
 import { API_URL } from "./config";
+
+interface Genre {
+  id: number;
+  name: string;
+}
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -12,6 +18,47 @@ function App() {
   const [recommendations, setRecommendations] = useState<MovieRecommendation[]>(
     []
   );
+  const [genres, setGenres] = useState<Genre[]>([]);
+  const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
+
+  useEffect(() => {
+    // Fetch genres when the app loads
+    const fetchGenres = async () => {
+      try {
+        console.log("Fetching genres from:", `${API_URL}/api/genres`);
+        const response = await fetch(`${API_URL}/api/genres`);
+        console.log("Genre response status:", response.status);
+        if (!response.ok) {
+          throw new Error("Failed to fetch genres");
+        }
+        const data = await response.json();
+        console.log("Received genres:", data);
+        setGenres(data);
+        // Select all genres by default
+        setSelectedGenres(data.map((genre: Genre) => genre.id));
+      } catch (error) {
+        console.error("Error fetching genres:", error);
+      }
+    };
+
+    fetchGenres();
+  }, []);
+
+  const handleGenreChange = (genreId: number) => {
+    setSelectedGenres((prev) =>
+      prev.includes(genreId)
+        ? prev.filter((id) => id !== genreId)
+        : [...prev, genreId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    setSelectedGenres(genres.map((genre) => genre.id));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedGenres([]);
+  };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSpotifyLink(event.target.value);
@@ -21,6 +68,11 @@ function App() {
   const handleGenerate = async () => {
     if (!spotifyLink.trim()) {
       setError("Please enter a Spotify link");
+      return;
+    }
+
+    if (selectedGenres.length === 0) {
+      setError("Please select at least one genre");
       return;
     }
 
@@ -52,6 +104,7 @@ function App() {
         body: JSON.stringify({
           spotifyLink,
           numRecs,
+          selectedGenres,
         }),
       });
 
@@ -157,6 +210,7 @@ function App() {
             isDarkMode ? "border-[#faf9f6]" : "border-[#0b1215]"
           } mb-4 border-[1.25px] transition-colors duration-300`}
         />
+
         <input
           type="text"
           placeholder="Paste a Spotify link"
@@ -173,8 +227,18 @@ function App() {
               : "bg-[#0b1215] text-[#faf9f6]"
           } ${
             isDarkMode ? "placeholder-gray-400" : "placeholder-gray-400"
-          } focus:outline-none transition-all duration-300`}
+          } focus:outline-none transition-all duration-300 mb-6`}
         />
+
+        <GenreSelector
+          genres={genres}
+          selectedGenres={selectedGenres}
+          onGenreChange={handleGenreChange}
+          onSelectAll={handleSelectAll}
+          onDeselectAll={handleDeselectAll}
+          isDarkMode={isDarkMode}
+        />
+
         <div className="flex items-center gap-2">
           <label
             className={`${
@@ -199,6 +263,7 @@ function App() {
             ))}
           </select>
         </div>
+
         <button
           onClick={handleGenerate}
           disabled={isLoading}
@@ -251,7 +316,7 @@ function App() {
           isDarkMode={isDarkMode}
         />
 
-        <div className="mt-16 mb-24 space-y-8 px-4 md:px-8 lg:px-12 w-full">
+        <div className="mt-4 mb-24 space-y-8 px-4 md:px-8 lg:px-12 w-full">
           <h2
             className={`${
               isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"

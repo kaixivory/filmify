@@ -52,7 +52,7 @@ export function MovieRecommendations({
               <img
                 src={movie.posterUrl}
                 alt={`${movie.title} poster`}
-                className="w-full h-64 object-cover"
+                className="w-full h-auto object-contain bg-black/20"
               />
             )}
             <div className="p-4">

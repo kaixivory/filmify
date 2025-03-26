@@ -340,10 +340,17 @@ function App() {
               <p
                 className={`${
                   isDarkMode ? "text-[#faf9f6]/80" : "text-[#0b1215]/80"
-                } text-sm md:text-base`}
+                } text-sm md:text-base leading-relaxed`}
               >
-                Copy and paste your Spotify playlist link into the input box
-                above.
+                Open Spotify and find your playlist. Click the{" "}
+                <strong>three dots menu (⋯)</strong> next to the playlist, then
+                click <strong>"Share"</strong> and select{" "}
+                <strong>"Copy link to playlist"</strong>. <strong>Paste</strong>{" "}
+                the link into the input box above.{" "}
+                <em>
+                  (note: make sure your playlist is <strong>public</strong> so
+                  we can access it.
+                </em>
               </p>
             </div>
             <div
@@ -356,15 +363,18 @@ function App() {
                   isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
                 } text-lg md:text-xl font-semibold mb-2`}
               >
-                2. Analyze Mood
+                2. Customize Your Search
               </h3>
               <p
                 className={`${
                   isDarkMode ? "text-[#faf9f6]/80" : "text-[#0b1215]/80"
-                } text-sm md:text-base`}
+                } text-sm md:text-base leading-relaxed`}
               >
-                Our AI analyzes the songs, artists, and overall vibe of your
-                playlist.
+                Select your preferred movie <strong>genres</strong> from the
+                dropdown menu. Then, choose <strong>how many</strong> movie
+                recommendations you'd like to receive. This helps us{" "}
+                <strong>tailor</strong> the results to <em>your</em>{" "}
+                preferences.
               </p>
             </div>
             <div
@@ -377,15 +387,22 @@ function App() {
                   isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
                 } text-lg md:text-xl font-semibold mb-2`}
               >
-                3. Get Recommendations
+                3. Generate & Explore
               </h3>
               <p
                 className={`${
                   isDarkMode ? "text-[#faf9f6]/80" : "text-[#0b1215]/80"
-                } text-sm md:text-base`}
+                } text-sm md:text-base leading-relaxed`}
               >
-                Receive personalized movie recommendations that match your
-                playlist's energy.
+                Click the <strong>"Generate"</strong> button and wait while our
+                AI analyzes your playlist. You'll receive personalized movie
+                recommendations that match your playlist's vibe and be able to
+                view detailed information about your picks. Click{" "}
+                <strong>"View on TMDB"</strong> to learn more about any movie
+                that interests you.{" "}
+                <em>Want to share your recommendations with friends?</em> Click
+                the <strong>"Share"</strong> button and you'll receive a
+                saveable image of your recommendations.
               </p>
             </div>
           </div>
@@ -397,6 +414,44 @@ function App() {
         } font-montserrat text-xs transition-colors duration-300 px-4`}
       >
         Made with {isDarkMode ? "🤍" : "🖤"} by Kailani
+        <div className="flex items-center justify-center gap-4 mt-2">
+          <a
+            href="https://github.com/kaixivory"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`hover:opacity-80 transition-opacity ${
+              isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
+            }`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="currentColor"
+              viewBox="0 0 16 16"
+            >
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+            </svg>
+          </a>
+          <a
+            href="https://open.spotify.com/user/cc04ev37msusv2zz2bbhpbidj?si=48735063f2ee4599"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`hover:opacity-80 transition-opacity ${
+              isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
+            }`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="currentColor"
+              viewBox="0 0 16 16"
+            >
+              <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm3.669 11.538a.498.498 0 0 1-.686.165c-1.879-1.147-4.243-1.407-7.028-.77a.499.499 0 0 1-.222-.973c3.048-.696 5.662-.397 7.77.892a.5.5 0 0 1 .166.686zm.979-2.178a.624.624 0 0 1-.858.205c-2.15-1.321-5.428-1.704-7.972-.932a.625.625 0 0 1-.362-1.194c2.905-.881 6.517-.454 8.986 1.063a.624.624 0 0 1 .206.858zm.084-2.268C10.154 5.56 5.9 5.419 3.438 6.166a.748.748 0 1 1-.434-1.432c2.825-.857 7.523-.692 10.492 1.07a.747.747 0 1 1-.764 1.288z" />
+            </svg>
+          </a>
+        </div>
       </footer>
     </div>
   );

@@ -1,6 +1,5 @@
 import OpenAI from "openai";
-import { SpotifyPlaylist } from "./spotify";
-import { getMovieDetails } from "./tmdb";
+import { searchMovies, getMovieDetails } from "./tmdb";
 import dotenv from "dotenv";
 
 // Load environment variables
@@ -30,7 +29,7 @@ export interface MovieRecommendation {
 }
 
 export async function generateMovieRecommendations(
-  playlist: SpotifyPlaylist,
+  playlist: any,
   numRecs: number = 5
 ): Promise<MovieRecommendation[]> {
   try {
@@ -40,66 +39,78 @@ export async function generateMovieRecommendations(
       process.env.OPENAI_API_KEY ? "Present" : "Missing"
     );
 
-    const prompt = `Based on this Spotify playlist: "${playlist.name}" with ${playlist.total} songs, recommend ${numRecs} movies that match the mood and themes. For each movie, provide:
+    const prompt = `Based on this Spotify playlist: "${playlist.name}" with ${playlist.total} songs, recommend ${numRecs} movies that match the playlist's vibe. For each movie, provide:
 1. Title
 2. Release year
 3. A brief explanation of why it matches the playlist's vibe
 
-Format the response as a JSON array of objects with "title", "year", and "reason" properties.`;
+Format the response as a JSON array of objects with "title", "year", and "reason" fields.`;
 
-    const response = await openai.chat.completions.create({
+    const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a movie recommendation expert. Provide thoughtful, well-reasoned movie suggestions based on music playlists.",
-        },
-        { role: "user", content: prompt },
-      ],
+      messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
       max_tokens: 1000,
     });
 
     console.log("Received response from OpenAI API");
 
-    const content = response.choices[0]?.message?.content;
+    const content = completion.choices[0].message.content;
     if (!content) {
       throw new Error("No response from OpenAI API");
     }
 
-    // Clean the content by removing markdown formatting
-    const cleanContent = content.replace(/```json\n?|\n?```/g, "").trim();
-    console.log("Cleaned content:", cleanContent);
+    // Clean and parse the content
+    const cleanedContent = content.replace(/```json\n?|\n?```/g, "").trim();
+    console.log("Cleaned content:", cleanedContent);
 
-    const recommendations = JSON.parse(cleanContent);
+    const recommendations = JSON.parse(cleanedContent);
 
-    if (!Array.isArray(recommendations)) {
-      throw new Error("Invalid response format from OpenAI API");
-    }
+    // Fetch additional details for each movie
+    const detailedRecommendations = await Promise.all(
+      recommendations.map(async (rec: any) => {
+        try {
+          // Search for the movie
+          const searchResults = await searchMovies(rec.title);
+          if (searchResults.length === 0) {
+            return {
+              ...rec,
+              posterUrl: null,
+              rating: 0,
+              genres: [],
+            };
+          }
 
-    // Fetch details for each recommendation
-    const recommendationsWithDetails = await Promise.all(
-      recommendations.map(async (rec) => {
-        const details = await getMovieDetails(rec.title, rec.year);
-        return {
-          ...rec,
-          posterUrl: details?.posterUrl || null,
-          rating: details?.rating || 0,
-          genres: details?.genres || [],
-        };
+          // Get the first result (most relevant match)
+          const movie = searchResults[0];
+
+          // Get detailed movie info
+          const details = await getMovieDetails(movie.id);
+
+          return {
+            ...rec,
+            ...details,
+          };
+        } catch (error) {
+          console.error(`Error fetching details for ${rec.title}:`, error);
+          return {
+            ...rec,
+            posterUrl: null,
+            rating: 0,
+            genres: [],
+          };
+        }
       })
     );
 
     console.log("✓ Movie recommendations generated");
-    return recommendationsWithDetails;
+    return detailedRecommendations;
   } catch (error) {
     console.error("OpenAI API error:", error);
-    if (error instanceof Error) {
-      throw new Error(
-        `Failed to generate movie recommendations: ${error.message}`
-      );
-    }
-    throw new Error("Failed to generate movie recommendations");
+    throw new Error(
+      `Failed to generate movie recommendations: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
   }
 }

@@ -159,7 +159,10 @@ export function MovieRecommendations({
           img.crossOrigin = "anonymous";
           img.onload = () => resolve(img);
           img.onerror = reject;
-          img.src = movie.posterUrl;
+          if (movie.posterUrl) {
+            // Type guard to ensure posterUrl is not null
+            img.src = movie.posterUrl;
+          }
         });
       });
 

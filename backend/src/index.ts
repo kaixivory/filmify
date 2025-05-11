@@ -7,6 +7,7 @@ import { getPlaylistDetails } from "./services/spotify";
 import { generateMovieRecommendations } from "./services/openai";
 import { getGenres } from "./services/tmdb";
 import cors from "cors";
+import movieRoutes from "./routes/movies";
 
 // Debug logging
 console.log("Environment check:", {
@@ -21,20 +22,20 @@ console.log("Environment check:", {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS configuration
-const corsOptions = {
-  origin: ["https://filmify-ai.onrender.com", "http://localhost:3000"],
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-};
+// Configure CORS
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "*",
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
-// Middleware
-app.use(cors(corsOptions));
 app.use(express.json());
 
-// Add OPTIONS handling for preflight requests
-app.options("*", cors(corsOptions));
+// Routes
+app.use("/api/movies", movieRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Backend Server is Running");
@@ -106,5 +107,18 @@ app.get("/api/genres", async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to fetch genres" });
   }
 });
+
+// Error handling middleware
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error(err.stack);
+    res.status(500).send("Something broke!");
+  }
+);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

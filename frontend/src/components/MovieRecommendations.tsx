@@ -11,6 +11,28 @@ interface MovieRecommendationsProps {
   playlistName: string;
 }
 
+// Update the helper function
+const getProxiedImageUrl = (tmdbPath: string | null) => {
+  if (!tmdbPath) {
+    console.log("No TMDB path provided");
+    return null;
+  }
+  console.log("Original TMDB path:", tmdbPath);
+
+  // Extract the path part from the TMDB URL
+  const path = tmdbPath.split("/w500/").pop();
+  if (!path) {
+    console.log("Failed to extract path from:", tmdbPath);
+    return null;
+  }
+
+  // Use the backend URL from environment variable, fallback to localhost:5000
+  const backendUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+  const proxiedUrl = `${backendUrl}/api/movies/proxy/poster/${path}`;
+  console.log("Generated proxied URL:", proxiedUrl);
+  return proxiedUrl;
+};
+
 // Share Preview Component
 function SharePreview({
   movies,
@@ -72,7 +94,7 @@ function SharePreview({
                 }}
               >
                 <img
-                  src={movie.posterUrl}
+                  src={getProxiedImageUrl(movie.posterUrl) || ""}
                   alt={`${movie.title} poster`}
                   style={{
                     position: "absolute",
@@ -84,6 +106,17 @@ function SharePreview({
                     display: "block",
                   }}
                   crossOrigin="anonymous"
+                  onError={(e) => {
+                    console.error(`Failed to load image for ${movie.title}:`, {
+                      originalUrl: movie.posterUrl,
+                      proxiedUrl: getProxiedImageUrl(movie.posterUrl),
+                      error: e,
+                      apiUrl: process.env.REACT_APP_API_URL,
+                    });
+                  }}
+                  onLoad={() => {
+                    console.log(`Successfully loaded image for ${movie.title}`);
+                  }}
                 />
               </div>
             ) : (
@@ -191,7 +224,7 @@ export function MovieRecommendations({
       // Wait for initial render
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      // Load all images and wait for them to complete
+      // Load all images with proper CORS handling
       const imagePromises = recommendations
         .filter((movie) => movie.posterUrl)
         .map(
@@ -199,23 +232,58 @@ export function MovieRecommendations({
             new Promise((resolve, reject) => {
               const img = new Image();
               img.crossOrigin = "anonymous";
-              img.onload = () => resolve(img);
-              img.onerror = () =>
-                reject(new Error(`Failed to load image: ${movie.title}`));
+
+              // Set up error handling
+              img.onerror = (error) => {
+                console.error(
+                  `Failed to load image for ${movie.title}:`,
+                  error
+                );
+                // Create a fallback image with movie title
+                const canvas = document.createElement("canvas");
+                canvas.width = 320;
+                canvas.height = 480;
+                const ctx = canvas.getContext("2d");
+                if (ctx) {
+                  ctx.fillStyle = isDarkMode ? "#0b1215" : "#faf9f6";
+                  ctx.fillRect(0, 0, canvas.width, canvas.height);
+                  ctx.fillStyle = isDarkMode ? "#faf9f6" : "#0b1215";
+                  ctx.font = "20px Arial";
+                  ctx.textAlign = "center";
+                  ctx.fillText(
+                    movie.title,
+                    canvas.width / 2,
+                    canvas.height / 2
+                  );
+                }
+                resolve(canvas);
+              };
+
+              // Set up success handling
+              img.onload = () => {
+                // Create a canvas to draw the image
+                const canvas = document.createElement("canvas");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext("2d");
+                if (ctx) {
+                  ctx.drawImage(img, 0, 0);
+                }
+                resolve(canvas);
+              };
+
+              // Set the source after setting up handlers
               img.src = movie.posterUrl!;
             })
         );
 
-      try {
-        await Promise.all(imagePromises);
-      } catch (error) {
-        console.warn("Some images failed to load:", error);
-      }
+      // Wait for all images to load or fail
+      const loadedImages = await Promise.allSettled(imagePromises);
 
       // Additional wait to ensure everything is rendered
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Use html2canvas with simplified options
+      // Use html2canvas with CORS-aware options
       const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,
@@ -258,10 +326,6 @@ export function MovieRecommendations({
       setPreviewUrl(url);
       setIsGeneratingPreview(false);
 
-      // Check if running on mobile
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-
       // Try to use Web Share API if available
       if (navigator.share) {
         try {
@@ -286,17 +350,6 @@ export function MovieRecommendations({
           // Continue to fallback options
         }
       }
-
-      // If Web Share API is not available or failed, and we're on mobile
-      if (isMobile) {
-        if (isIOS) {
-          // For iOS, open in new tab
-          window.open(url, "_blank");
-        } else {
-          // For Android, show preview and let user save through the UI
-          // The preview is already shown, and the save button will handle the download
-        }
-      }
     } catch (err) {
       console.error("Error generating share image:", err);
       setShowPreview(false);
@@ -311,49 +364,47 @@ export function MovieRecommendations({
     try {
       // Check if running on mobile
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
       const isAndroid = /Android/i.test(navigator.userAgent);
 
-      if (isMobile) {
-        if (navigator.share) {
-          try {
-            const response = await fetch(previewUrl);
-            const blob = await response.blob();
-            const file = new File([blob], "filmify-recommendations.png", {
-              type: "image/png",
-            });
+      if (isMobile && navigator.share) {
+        try {
+          const response = await fetch(previewUrl);
+          const blob = await response.blob();
+          const file = new File([blob], "filmify-recommendations.png", {
+            type: "image/png",
+          });
 
-            await navigator.share({
-              files: [file],
-              title: "Filmify Recommendations",
-              text: `Check out these movie recommendations for "${playlistName}"!`,
-              url: "https://filmify-ai.onrender.com",
-            });
+          await navigator.share({
+            files: [file],
+            title: "Filmify Recommendations",
+            text: `Check out these movie recommendations for "${playlistName}"!`,
+            url: "https://filmify-ai.onrender.com",
+          });
 
-            handleClose();
-            return;
-          } catch (shareError) {
-            console.error("Error sharing:", shareError);
-            // Fall back to browser-specific handling
-          }
+          handleClose();
+          return;
+        } catch (shareError) {
+          console.error("Error sharing:", shareError);
+          // Fall back to download
         }
+      }
 
-        // Browser-specific handling
-        if (isIOS) {
-          // For iOS, open in new tab (Safari handles this well)
-          window.open(previewUrl, "_blank");
-        } else if (isAndroid) {
-          // For Android, try to trigger download through user interaction
+      // Handle different mobile browsers
+      if (isMobile) {
+        if (isAndroid) {
+          // For Android, try to download directly
           const link = document.createElement("a");
           link.href = previewUrl;
-          link.target = "_blank"; // Open in new tab instead of download
-          link.rel = "noopener noreferrer";
+          link.download = "filmify-recommendations.png";
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+        } else {
+          // For iOS, open in new tab
+          window.open(previewUrl, "_blank");
         }
       } else {
-        // Desktop browsers - use standard download
+        // Regular download for desktop
         const link = document.createElement("a");
         link.href = previewUrl;
         link.download = "filmify-recommendations.png";
@@ -418,7 +469,7 @@ export function MovieRecommendations({
             <div className="w-full aspect-[2/3] flex-shrink-0 bg-black/20 flex items-center justify-center">
               {movie.posterUrl ? (
                 <img
-                  src={movie.posterUrl}
+                  src={getProxiedImageUrl(movie.posterUrl) || ""}
                   alt={`${movie.title} poster`}
                   className="w-full h-full object-contain"
                 />

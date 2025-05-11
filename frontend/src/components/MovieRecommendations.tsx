@@ -55,10 +55,7 @@ function SharePreview({
         }}
       >
         {movies.map((movie, index) => (
-          <div
-            key={index}
-            style={{ aspectRatio: "2/3", width: "400px", position: "relative" }}
-          >
+          <div key={index} style={{ aspectRatio: "2/3", width: "400px" }}>
             {movie.posterUrl ? (
               <img
                 src={movie.posterUrl}
@@ -170,7 +167,7 @@ export function MovieRecommendations({
       // Wait for the component to render
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Use html2canvas with simplified options
+      // Use html2canvas with basic options
       const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,

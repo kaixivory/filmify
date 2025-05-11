@@ -8,49 +8,95 @@ interface MovieRecommendationsProps {
   isLoading: boolean;
   error: string | null;
   isDarkMode: boolean;
+  playlistName: string;
 }
 
 // Share Preview Component
 function SharePreview({
   movies,
   isDarkMode,
+  playlistName,
 }: {
   movies: MovieRecommendation[];
   isDarkMode: boolean;
+  playlistName: string;
 }) {
   return (
     <div
-      className={`w-[1080px] h-[1920px] ${
-        isDarkMode ? "bg-[#0b1215]" : "bg-[#faf9f6]"
-      } flex flex-col items-center justify-center p-12`}
+      style={{
+        width: "1080px",
+        height: "1920px",
+        backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "48px",
+      }}
     >
-      <div className="grid grid-cols-2 gap-8 mb-12">
-        {movies.slice(0, 4).map((movie, index) => (
-          <div key={index} className="aspect-[2/3] relative w-[400px]">
+      <h1
+        style={{
+          color: isDarkMode ? "#0ee65e" : "#0baf47",
+          fontFamily: "Poppins, sans-serif",
+          fontSize: "48px",
+          fontWeight: "800",
+          marginBottom: "48px",
+          textAlign: "center",
+        }}
+      >
+        {playlistName} movie recs
+      </h1>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, 1fr)",
+          gap: "32px",
+        }}
+      >
+        {movies.map((movie, index) => (
+          <div
+            key={index}
+            style={{ aspectRatio: "2/3", width: "400px", position: "relative" }}
+          >
             {movie.posterUrl ? (
               <img
                 src={movie.posterUrl}
                 alt={`${movie.title} poster`}
-                className="w-full h-full object-contain rounded-lg"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  borderRadius: "8px",
+                }}
                 crossOrigin="anonymous"
-                loading="eager"
               />
             ) : (
               <div
-                className={`w-full h-full flex items-center justify-center ${
-                  isDarkMode ? "bg-[#0b1215]" : "bg-[#faf9f6]"
-                } rounded-lg`}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                  borderRadius: "8px",
+                }}
               >
-                <div className="text-center p-4">
+                <div style={{ textAlign: "center", padding: "16px" }}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                    className={`w-12 h-12 mx-auto mb-2 ${
-                      isDarkMode ? "text-[#faf9f6]/40" : "text-[#0b1215]/40"
-                    }`}
+                    style={{
+                      width: "48px",
+                      height: "48px",
+                      margin: "0 auto 8px",
+                      color: isDarkMode
+                        ? "rgba(250, 249, 246, 0.4)"
+                        : "rgba(11, 18, 21, 0.4)",
+                    }}
                   >
                     <path
                       strokeLinecap="round"
@@ -64,16 +110,19 @@ function SharePreview({
           </div>
         ))}
       </div>
-      <div className="text-center">
+      <div style={{ textAlign: "center", marginTop: "48px" }}>
         <a
           href="https://filmify.ai"
           target="_blank"
           rel="noopener noreferrer"
-          className={`inline-flex items-center gap-2 text-2xl ${
-            isDarkMode
-              ? "text-[#0ee65e] hover:text-[#0ee65e]/80"
-              : "text-[#0baf47] hover:text-[#0baf47]/80"
-          } transition-colors`}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            fontSize: "24px",
+            color: isDarkMode ? "#0ee65e" : "#0baf47",
+            textDecoration: "none",
+          }}
         >
           <span>Get your own recommendations at filmify.ai</span>
           <svg
@@ -82,7 +131,7 @@ function SharePreview({
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-6 h-6"
+            style={{ width: "24px", height: "24px" }}
           >
             <path
               strokeLinecap="round"
@@ -101,6 +150,7 @@ export function MovieRecommendations({
   isLoading,
   error,
   isDarkMode,
+  playlistName,
 }: MovieRecommendationsProps) {
   const sharePreviewRef = useRef<HTMLDivElement>(null);
   const [showPreview, setShowPreview] = useState(false);
@@ -110,67 +160,159 @@ export function MovieRecommendations({
   const handleShare = async () => {
     if (!recommendations || recommendations.length === 0) return;
 
-    // Show modal immediately
     setShowPreview(true);
     setIsGeneratingPreview(true);
 
     try {
-      // Create a temporary container for the preview
-      const container = document.createElement("div");
-      container.style.position = "absolute";
-      container.style.left = "-9999px";
-      container.style.width = "1080px";
-      container.style.height = "1920px";
-      container.style.backgroundColor = isDarkMode ? "#0b1215" : "#faf9f6";
-      document.body.appendChild(container);
+      // Create a canvas with smaller dimensions
+      const canvas = document.createElement("canvas");
+      canvas.width = 600;
+      canvas.height = 1000;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Could not get canvas context");
 
-      // Create a root and render the SharePreview component
-      const root = createRoot(container);
-      root.render(
-        <SharePreview movies={recommendations} isDarkMode={isDarkMode} />
-      );
+      // Fill background
+      ctx.fillStyle = isDarkMode ? "#0b1215" : "#faf9f6";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Wait for images to load
-      const loadImages = async () => {
-        const images = container.getElementsByTagName("img");
-        const imagePromises = Array.from(images).map(
-          (img) =>
-            new Promise((resolve) => {
-              if (img.complete) {
-                resolve(null);
-              } else {
-                img.onload = () => resolve(null);
-                img.onerror = () => {
-                  console.error("Failed to load image:", img.src);
-                  resolve(null);
-                };
-              }
-            })
-        );
-        await Promise.all(imagePromises);
+      // Add title with wrapping
+      ctx.fillStyle = isDarkMode ? "#0ee65e" : "#0baf47";
+      ctx.font = "bold 36px Poppins";
+      ctx.textAlign = "center";
+
+      // Function to wrap text
+      const wrapText = (text: string, maxWidth: number) => {
+        const words = text.split(" ");
+        const lines = [];
+        let currentLine = words[0];
+
+        for (let i = 1; i < words.length; i++) {
+          const word = words[i];
+          const width = ctx.measureText(currentLine + " " + word).width;
+          if (width < maxWidth) {
+            currentLine += " " + word;
+          } else {
+            lines.push(currentLine);
+            currentLine = word;
+          }
+        }
+        lines.push(currentLine);
+        return lines;
       };
 
-      // Wait for React to render and images to load
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      await loadImages();
+      // Wrap the title text
+      const titleText = `Your Perfect ${
+        recommendations.length === 1 ? "Movie" : "Movies"
+      } for "${playlistName}"`;
+      const maxWidth = canvas.width - 80; // Leave 40px padding on each side
+      const wrappedLines = wrapText(titleText, maxWidth);
 
-      // Create the preview
-      const canvas = await html2canvas(container, {
-        backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
-        scale: 2,
-        width: 1080,
-        height: 1920,
-        useCORS: true,
-        logging: true,
-        allowTaint: true,
-        foreignObjectRendering: true,
+      // Draw each line of the wrapped title
+      const lineHeight = 45;
+      const startY = 60;
+      wrappedLines.forEach((line, index) => {
+        ctx.fillText(line, canvas.width / 2, startY + index * lineHeight);
       });
 
+      // Adjust startY for posters based on number of title lines
+      const titleHeight = wrappedLines.length * lineHeight;
+      const startYPosters = startY + titleHeight + 20; // Add 20px padding after title
+
+      // Calculate available height for posters
+      const footerHeight = 80; // Space for footer text
+      const availableHeight = canvas.height - startYPosters - footerHeight;
+
+      // Determine grid layout based on number of recommendations
+      let imagesPerRow: number;
+      let maxPosterSize: number;
+
+      switch (recommendations.length) {
+        case 1:
+          imagesPerRow = 1;
+          maxPosterSize = 450; // Increased from 400 to 450 for single recommendation
+          break;
+        case 2:
+          imagesPerRow = 2;
+          maxPosterSize = 250; // Slightly larger for 2 posters
+          break;
+        case 3:
+        case 4:
+          imagesPerRow = 2;
+          maxPosterSize = 220;
+          break;
+        case 5:
+        case 6:
+          imagesPerRow = 3;
+          maxPosterSize = 180;
+          break;
+        default:
+          imagesPerRow = 3;
+          maxPosterSize = 160; // Smaller for more than 6 posters
+      }
+
+      const gap = imagesPerRow === 1 ? 0 : 12; // No gap for single poster
+      const numRows = Math.ceil(recommendations.length / imagesPerRow);
+
+      // Calculate maximum possible poster height that fits in available space
+      const maxPosterHeight = (availableHeight - gap * (numRows - 1)) / numRows;
+      // Calculate poster width maintaining aspect ratio (2:3)
+      const posterSize = Math.min(maxPosterSize, (maxPosterHeight * 2) / 3);
+
+      // Calculate total width of posters and gaps
+      const totalWidth = posterSize * imagesPerRow + gap * (imagesPerRow - 1);
+      // Calculate starting x position to center the grid
+      const startX = (canvas.width - totalWidth) / 2;
+
+      const loadImage = (url: string): Promise<HTMLImageElement> => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = url;
+        });
+      };
+
+      // Load all images first
+      const imagePromises = recommendations.map((movie) =>
+        movie.posterUrl ? loadImage(movie.posterUrl) : null
+      );
+      const loadedImages = await Promise.all(imagePromises);
+
+      // Draw images in a grid
+      loadedImages.forEach((img, index) => {
+        if (!img) return;
+
+        const row = Math.floor(index / imagesPerRow);
+        const col = index % imagesPerRow;
+
+        const x = startX + col * (posterSize + gap);
+        const y = startYPosters + row * (posterSize * 1.5 + gap);
+
+        // Draw poster
+        ctx.drawImage(img, x, y, posterSize, posterSize * 1.5);
+      });
+
+      // Add footer text
+      ctx.fillStyle = isDarkMode ? "#0ee65e" : "#0baf47";
+      ctx.font = "bold 24px Poppins";
+      ctx.fillText(
+        "Get your own recommendations at",
+        canvas.width / 2,
+        canvas.height - 50
+      );
+      ctx.fillText(
+        "https://filmify-ai.onrender.com/",
+        canvas.width / 2,
+        canvas.height - 20
+      );
+
       // Convert to blob
-      const blob = await new Promise<Blob>((resolve) => {
+      const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob(
           (blob) => {
             if (blob) resolve(blob);
+            else reject(new Error("Failed to create blob"));
           },
           "image/png",
           1.0
@@ -181,10 +323,6 @@ export function MovieRecommendations({
       const url = URL.createObjectURL(blob);
       setPreviewUrl(url);
       setIsGeneratingPreview(false);
-
-      // Clean up
-      root.unmount();
-      document.body.removeChild(container);
     } catch (err) {
       console.error("Error generating share image:", err);
       setShowPreview(false);
@@ -428,7 +566,7 @@ export function MovieRecommendations({
             <div
               className={`${
                 isDarkMode ? "bg-black/30" : "bg-[#0b1215]/5"
-              } w-[270px] h-[480px] rounded-lg border ${
+              } w-[300px] h-[500px] rounded-lg border ${
                 isDarkMode ? "border-white/10" : "border-black/10"
               } mb-4 overflow-hidden flex items-center justify-center`}
             >

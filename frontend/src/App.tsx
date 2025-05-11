@@ -33,6 +33,7 @@ function App() {
   const [recommendations, setRecommendations] = useState<MovieRecommendation[]>(
     []
   );
+  const [playlistName, setPlaylistName] = useState<string>("");
   const [genres, setGenres] = useState<Genre[]>([]);
   const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
   const [selectedAgeRatings, setSelectedAgeRatings] =
@@ -192,6 +193,7 @@ function App() {
 
       const data = await response.json();
       setRecommendations(data.recommendations);
+      setPlaylistName(data.playlist.name);
     } catch (error) {
       console.error("Error:", error);
       setError(
@@ -380,6 +382,7 @@ function App() {
           isLoading={isLoading}
           error={error}
           isDarkMode={isDarkMode}
+          playlistName={playlistName}
         />
 
         <div className="mt-4 mb-24 space-y-8 px-4 md:px-8 lg:px-12 w-full">

@@ -1,12 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { MovieRecommendations } from "./components/MovieRecommendations";
-import { GenreSelector } from "./components/GenreSelector";
+import {
+  PreferencesSelector,
+  AGE_RATINGS,
+  RUNTIME_GROUPS,
+  RATING_GROUPS,
+} from "./components/GenreSelector";
 import { MovieRecommendation } from "./types/movie";
 import { API_URL } from "./config";
 
 interface Genre {
   id: number;
   name: string;
+}
+
+interface RuntimeGroup {
+  label: string;
+  value: string;
+}
+
+interface RatingGroup {
+  label: string;
+  value: string;
 }
 
 function App() {
@@ -20,6 +35,14 @@ function App() {
   );
   const [genres, setGenres] = useState<Genre[]>([]);
   const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
+  const [selectedAgeRatings, setSelectedAgeRatings] =
+    useState<string[]>(AGE_RATINGS);
+  const [selectedRuntime, setSelectedRuntime] = useState<string[]>(
+    RUNTIME_GROUPS.map((group: RuntimeGroup) => group.value)
+  );
+  const [selectedRatings, setSelectedRatings] = useState<string[]>(
+    RATING_GROUPS.map((group: RatingGroup) => group.value)
+  );
 
   useEffect(() => {
     // Fetch genres when the app loads
@@ -60,89 +83,120 @@ function App() {
     setSelectedGenres([]);
   };
 
+  const handleAgeRatingChange = (rating: string) => {
+    setSelectedAgeRatings((prev) =>
+      prev.includes(rating)
+        ? prev.filter((r) => r !== rating)
+        : [...prev, rating]
+    );
+  };
+
+  const handleRuntimeChange = (runtime: string) => {
+    setSelectedRuntime((prev) =>
+      prev.includes(runtime)
+        ? prev.filter((r) => r !== runtime)
+        : [...prev, runtime]
+    );
+  };
+
+  const handleRatingChange = (rating: string) => {
+    setSelectedRatings((prev) =>
+      prev.includes(rating)
+        ? prev.filter((r) => r !== rating)
+        : [...prev, rating]
+    );
+  };
+
+  const handleAgeRatingSelectAll = () => {
+    setSelectedAgeRatings(AGE_RATINGS);
+  };
+
+  const handleAgeRatingDeselectAll = () => {
+    setSelectedAgeRatings([]);
+  };
+
+  const handleRuntimeSelectAll = () => {
+    setSelectedRuntime(RUNTIME_GROUPS.map((group) => group.value));
+  };
+
+  const handleRuntimeDeselectAll = () => {
+    setSelectedRuntime([]);
+  };
+
+  const handleRatingSelectAll = () => {
+    setSelectedRatings(RATING_GROUPS.map((group) => group.value));
+  };
+
+  const handleRatingDeselectAll = () => {
+    setSelectedRatings([]);
+  };
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSpotifyLink(event.target.value);
     setError(null);
   };
 
-  const handleGenerate = async () => {
-    if (!spotifyLink.trim()) {
-      setError("Please enter a Spotify link");
-      return;
-    }
-
-    if (selectedGenres.length === 0) {
-      setError("Please select at least one genre");
-      return;
-    }
-
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setIsLoading(true);
     setError(null);
 
+    // Validate selections
+    if (selectedGenres.length === 0) {
+      setError("Please select at least one genre");
+      setIsLoading(false);
+      return;
+    }
+    if (selectedAgeRatings.length === 0) {
+      setError("Please select at least one age rating");
+      setIsLoading(false);
+      return;
+    }
+    if (selectedRuntime.length === 0) {
+      setError("Please select at least one runtime range");
+      setIsLoading(false);
+      return;
+    }
+    if (selectedRatings.length === 0) {
+      setError("Please select at least one rating range");
+      setIsLoading(false);
+      return;
+    }
+
+    const requestBody = {
+      spotifyLink,
+      numRecs,
+      selectedGenres,
+      selectedAgeRatings,
+      selectedRuntime,
+      selectedRatings,
+    };
+
+    console.log("Debug - Request Body:", requestBody);
+
     try {
-      console.log("Sending request to backend...");
-
-      // First check if the server is running
-      try {
-        const healthCheck = await fetch(`${API_URL}/`);
-        if (!healthCheck.ok) {
-          throw new Error("Backend server is not responding");
-        }
-      } catch (err) {
-        console.error("Health check failed:", err);
-        throw new Error(
-          "Cannot connect to the backend server. Please make sure it's running on port 5000."
-        );
-      }
-
       const response = await fetch(`${API_URL}/api/playlist`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
         },
-        body: JSON.stringify({
-          spotifyLink,
-          numRecs,
-          selectedGenres,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `Server error: ${response.status}`);
+        throw new Error(
+          errorData.error || "Failed to generate recommendations"
+        );
       }
 
       const data = await response.json();
-      console.log("Response from backend:", data);
-
-      if (!data.recommendations || data.recommendations.length === 0) {
-        throw new Error("No recommendations were generated. Please try again.");
-      }
-
       setRecommendations(data.recommendations);
-    } catch (err) {
-      console.error("Error in handleGenerate:", err);
-      if (err instanceof Error) {
-        if (
-          err.message.includes("Failed to fetch") ||
-          err.message.includes("NetworkError")
-        ) {
-          setError(
-            "Cannot connect to the server. Please try again in a few moments."
-          );
-        } else if (err.message.includes("Playlist not found")) {
-          setError(
-            "Could not find the Spotify playlist. Please check the link and try again."
-          );
-        } else if (err.message.includes("No recommendations")) {
-          setError(err.message);
-        } else {
-          setError(err.message);
-        }
-      } else {
-        setError("An unexpected error occurred. Please try again.");
-      }
+    } catch (error) {
+      console.error("Error:", error);
+      setError(
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -218,7 +272,7 @@ function App() {
           onChange={handleInputChange}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !isLoading) {
-              handleGenerate();
+              handleSubmit(e);
             }
           }}
           className={`rounded-full px-4 py-2 w-full md:w-1/2 ${
@@ -230,13 +284,25 @@ function App() {
           } focus:outline-none transition-all duration-300 mb-6`}
         />
 
-        <GenreSelector
+        <PreferencesSelector
           genres={genres}
           selectedGenres={selectedGenres}
           onGenreChange={handleGenreChange}
           onSelectAll={handleSelectAll}
           onDeselectAll={handleDeselectAll}
           isDarkMode={isDarkMode}
+          selectedAgeRatings={selectedAgeRatings}
+          selectedRuntime={selectedRuntime}
+          selectedRatings={selectedRatings}
+          onAgeRatingChange={handleAgeRatingChange}
+          onRuntimeChange={handleRuntimeChange}
+          onRatingChange={handleRatingChange}
+          onAgeRatingSelectAll={handleAgeRatingSelectAll}
+          onAgeRatingDeselectAll={handleAgeRatingDeselectAll}
+          onRuntimeSelectAll={handleRuntimeSelectAll}
+          onRuntimeDeselectAll={handleRuntimeDeselectAll}
+          onRatingSelectAll={handleRatingSelectAll}
+          onRatingDeselectAll={handleRatingDeselectAll}
         />
 
         <div className="flex items-center gap-2">
@@ -265,7 +331,7 @@ function App() {
         </div>
 
         <button
-          onClick={handleGenerate}
+          onClick={handleSubmit}
           disabled={isLoading}
           className={`${
             isDarkMode
@@ -322,7 +388,7 @@ function App() {
               isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
             } text-xl md:text-2xl font-bold text-center mb-6`}
           >
-            How it works
+            How It Works
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             <div
@@ -370,11 +436,10 @@ function App() {
                   isDarkMode ? "text-[#faf9f6]/80" : "text-[#0b1215]/80"
                 } text-sm md:text-base leading-relaxed`}
               >
-                Select your preferred movie <strong>genres</strong> from the
-                dropdown menu. Then, choose <strong>how many</strong> movie
-                recommendations you'd like to receive. This helps us{" "}
-                <strong>tailor</strong> the results to <em>your</em>{" "}
-                preferences.
+                Select your <strong>preferences</strong> from the dropdown menu.
+                Then, choose <strong>how many</strong> movie recommendations
+                you'd like to receive. This helps <strong>tailor</strong> the
+                results to <em>your</em> needs.
               </p>
             </div>
             <div

@@ -43,7 +43,21 @@ app.get("/", (req: Request, res: Response) => {
 app.post("/api/playlist", (req: Request, res: Response) => {
   const handleRequest = async () => {
     try {
-      const { spotifyLink, numRecs = 5, selectedGenres = [] } = req.body;
+      const {
+        spotifyLink,
+        numRecs = 5,
+        selectedGenres = [],
+        selectedAgeRatings = [],
+        selectedRuntime = [],
+        selectedRatings = [],
+      } = req.body;
+
+      console.log("Debug - API Received Preferences:", {
+        selectedGenres,
+        selectedAgeRatings,
+        selectedRuntime,
+        selectedRatings,
+      });
 
       if (!spotifyLink) {
         return res.status(400).json({ error: "Spotify link is required" });
@@ -56,7 +70,10 @@ app.post("/api/playlist", (req: Request, res: Response) => {
       const movieRecommendations = await generateMovieRecommendations(
         playlistDetails,
         numRecs,
-        selectedGenres
+        selectedGenres,
+        selectedAgeRatings,
+        selectedRuntime,
+        selectedRatings
       );
       console.log("✓ Movie recommendations generated");
 

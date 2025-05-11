@@ -47,6 +47,146 @@ function SharePreview({
   isDarkMode: boolean;
   playlistName: string;
 }) {
+  // Calculate grid layout based on number of movies
+  const getGridLayout = () => {
+    const count = movies.length;
+    if (count === 1) {
+      return {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        maxWidth: "900px",
+        margin: "0 auto",
+        flex: 1,
+        minHeight: "1200px",
+      };
+    } else if (count === 2) {
+      return {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: "48px",
+        maxWidth: "1000px",
+        margin: "0 auto",
+        flex: 1,
+        minHeight: "1200px",
+      };
+    } else if (count === 3) {
+      return {
+        display: "flex",
+        flexDirection: "column" as const,
+        alignItems: "center",
+        gap: "48px",
+        maxWidth: "1000px",
+        margin: "0 auto",
+        flex: 1,
+        minHeight: "1200px",
+      };
+    } else if (count === 4) {
+      return {
+        display: "flex",
+        flexDirection: "column" as const,
+        alignItems: "center",
+        gap: "24px",
+        maxWidth: "1000px",
+        margin: "0 auto",
+        flex: 1,
+        minHeight: "1200px",
+      };
+    } else if (count === 5) {
+      return {
+        display: "flex",
+        flexDirection: "column" as const,
+        alignItems: "center",
+        gap: "24px",
+        maxWidth: "1000px",
+        margin: "0 auto",
+        flex: 1,
+        minHeight: "1200px",
+      };
+    } else if (count === 6) {
+      return {
+        display: "flex",
+        flexDirection: "column" as const,
+        alignItems: "center",
+        gap: "24px",
+        maxWidth: "1000px",
+        margin: "0 auto",
+        flex: 1,
+        minHeight: "1200px",
+      };
+    } else if (count === 7) {
+      return {
+        display: "flex",
+        flexDirection: "column" as const,
+        alignItems: "center",
+        gap: "24px",
+        maxWidth: "1000px",
+        margin: "0 auto",
+        flex: 1,
+        minHeight: "1200px",
+      };
+    } else if (count === 8) {
+      return {
+        display: "flex",
+        flexDirection: "column" as const,
+        alignItems: "center",
+        gap: "24px",
+        maxWidth: "1000px",
+        margin: "0 auto",
+        flex: 1,
+        minHeight: "1200px",
+      };
+    } else if (count === 9) {
+      return {
+        display: "flex",
+        flexDirection: "column" as const,
+        alignItems: "center",
+        gap: "24px",
+        maxWidth: "1000px",
+        margin: "0 auto",
+        flex: 1,
+        minHeight: "1200px",
+      };
+    } else {
+      return {
+        gridTemplateColumns: "repeat(3, 1fr)",
+        gap: "20px",
+        maxWidth: "900px",
+        margin: "0 auto",
+      };
+    }
+  };
+
+  // Calculate poster size based on number of movies
+  const getPosterSize = () => {
+    const count = movies.length;
+    if (count === 1) {
+      return { width: "800px" };
+    } else if (count === 2) {
+      return { width: "500px" };
+    } else if (count === 3) {
+      return { width: "400px" };
+    } else if (count === 4) {
+      return { width: "400px" };
+    } else if (count === 5) {
+      return { width: "280px" };
+    } else if (count === 6) {
+      return { width: "280px" };
+    } else if (count === 7) {
+      return { width: "280px" };
+    } else if (count === 8) {
+      return { width: "280px" };
+    } else if (count === 9) {
+      return { width: "280px" };
+    } else {
+      return { width: "260px" };
+    }
+  };
+
+  const gridLayout = getGridLayout();
+  const posterSize = getPosterSize();
+
   return (
     <div
       style={{
@@ -56,120 +196,2051 @@ function SharePreview({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "flex-start",
+        justifyContent: "space-between",
         padding: "32px",
         overflow: "hidden",
+        textAlign: "center",
       }}
     >
-      <h1
-        style={{
-          color: isDarkMode ? "#0ee65e" : "#0baf47",
-          fontFamily: "Poppins, sans-serif",
-          fontSize: "42px",
-          fontWeight: "800",
-          marginBottom: "32px",
-          textAlign: "center",
-          maxWidth: "1000px",
-        }}
-      >
-        Your Perfect {movies.length === 1 ? "Movie" : "Movies"} for "
-        {playlistName}"
-      </h1>
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          gap: "24px",
-          maxWidth: "1000px",
-          marginBottom: "32px",
+          marginTop:
+            movies.length === 5 ||
+            movies.length === 6 ||
+            movies.length === 7 ||
+            movies.length === 8 ||
+            movies.length === 9
+              ? "15px"
+              : "100px",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
-        {movies.map((movie, index) => (
-          <div key={index} style={{ aspectRatio: "2/3", width: "320px" }}>
-            {movie.posterUrl ? (
+        <h1
+          style={{
+            color: isDarkMode ? "#0ee65e" : "#0baf47",
+            fontFamily: "Poppins, sans-serif",
+            fontSize: "42px",
+            fontWeight: "800",
+            marginBottom: "48px",
+            textAlign: "center",
+            maxWidth: "900px",
+            width: "100%",
+          }}
+        >
+          Your Perfect {movies.length === 1 ? "Movie" : "Movies"} for "
+          {playlistName}"
+        </h1>
+        <div
+          style={{
+            ...gridLayout,
+            marginBottom: "48px",
+            marginTop:
+              movies.length === 3 ||
+              movies.length === 4 ||
+              movies.length === 5 ||
+              movies.length === 6 ||
+              movies.length === 7 ||
+              movies.length === 8 ||
+              movies.length === 9
+                ? "60px"
+                : "100px",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          {movies.length === 3 ? (
+            <>
               <div
                 style={{
-                  width: "100%",
-                  height: "100%",
-                  position: "relative",
-                  backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
-                  borderRadius: "8px",
-                  overflow: "hidden",
-                }}
-              >
-                <img
-                  src={getProxiedImageUrl(movie.posterUrl) || ""}
-                  alt={`${movie.title} poster`}
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                    display: "block",
-                  }}
-                  crossOrigin="anonymous"
-                  onError={(e) => {
-                    console.error(`Failed to load image for ${movie.title}:`, {
-                      originalUrl: movie.posterUrl,
-                      proxiedUrl: getProxiedImageUrl(movie.posterUrl),
-                      error: e,
-                      apiUrl: process.env.REACT_APP_API_URL,
-                    });
-                  }}
-                  onLoad={() => {
-                    console.log(`Successfully loaded image for ${movie.title}`);
-                  }}
-                />
-              </div>
-            ) : (
-              <div
-                style={{
-                  width: "100%",
-                  height: "100%",
                   display: "flex",
-                  alignItems: "center",
+                  gap: "48px",
+                  marginBottom: "4px",
                   justifyContent: "center",
-                  backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
-                  borderRadius: "8px",
+                  width: "100%",
                 }}
               >
-                <div style={{ textAlign: "center", padding: "16px" }}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
+                {movies.slice(0, 2).map((movie, index) => (
+                  <div
+                    key={index}
                     style={{
-                      width: "48px",
-                      height: "48px",
-                      margin: "0 auto 8px",
-                      color: isDarkMode
-                        ? "rgba(250, 249, 246, 0.4)"
-                        : "rgba(11, 18, 21, 0.4)",
+                      aspectRatio: "2/3",
+                      ...posterSize,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
                     }}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                    {movie.posterUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={getProxiedImageUrl(movie.posterUrl) || ""}
+                          alt={`${movie.title} poster`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          crossOrigin="anonymous"
+                          onError={(e) => {
+                            console.error(
+                              `Failed to load image for ${movie.title}:`,
+                              {
+                                originalUrl: movie.posterUrl,
+                                proxiedUrl: getProxiedImageUrl(movie.posterUrl),
+                                error: e,
+                                apiUrl: process.env.REACT_APP_API_URL,
+                              }
+                            );
+                          }}
+                          onLoad={() => {
+                            console.log(
+                              `Successfully loaded image for ${movie.title}`
+                            );
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div style={{ textAlign: "center", padding: "16px" }}>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              margin: "0 auto 8px",
+                              color: isDarkMode
+                                ? "rgba(250, 249, 246, 0.4)"
+                                : "rgba(11, 18, 21, 0.4)",
+                            }}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div
+                style={{
+                  aspectRatio: "2/3",
+                  ...posterSize,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                {movies[2].posterUrl ? (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      position: "relative",
+                      backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                      borderRadius: "8px",
+                      overflow: "hidden",
+                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                    }}
+                  >
+                    <img
+                      src={getProxiedImageUrl(movies[2].posterUrl) || ""}
+                      alt={`${movies[2].title} poster`}
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        display: "block",
+                      }}
+                      crossOrigin="anonymous"
+                      onError={(e) => {
+                        console.error(
+                          `Failed to load image for ${movies[2].title}:`,
+                          {
+                            originalUrl: movies[2].posterUrl,
+                            proxiedUrl: getProxiedImageUrl(movies[2].posterUrl),
+                            error: e,
+                            apiUrl: process.env.REACT_APP_API_URL,
+                          }
+                        );
+                      }}
+                      onLoad={() => {
+                        console.log(
+                          `Successfully loaded image for ${movies[2].title}`
+                        );
+                      }}
                     />
-                  </svg>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                    }}
+                  >
+                    <div style={{ textAlign: "center", padding: "16px" }}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        style={{
+                          width: "48px",
+                          height: "48px",
+                          margin: "0 auto 8px",
+                          color: isDarkMode
+                            ? "rgba(250, 249, 246, 0.4)"
+                            : "rgba(11, 18, 21, 0.4)",
+                        }}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : movies.length === 4 ? (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "48px",
+                  marginBottom: "24px",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {movies.slice(0, 2).map((movie, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      aspectRatio: "2/3",
+                      ...posterSize,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {movie.posterUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={getProxiedImageUrl(movie.posterUrl) || ""}
+                          alt={`${movie.title} poster`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          crossOrigin="anonymous"
+                          onError={(e) => {
+                            console.error(
+                              `Failed to load image for ${movie.title}:`,
+                              {
+                                originalUrl: movie.posterUrl,
+                                proxiedUrl: getProxiedImageUrl(movie.posterUrl),
+                                error: e,
+                                apiUrl: process.env.REACT_APP_API_URL,
+                              }
+                            );
+                          }}
+                          onLoad={() => {
+                            console.log(
+                              `Successfully loaded image for ${movie.title}`
+                            );
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div style={{ textAlign: "center", padding: "16px" }}>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              margin: "0 auto 8px",
+                              color: isDarkMode
+                                ? "rgba(250, 249, 246, 0.4)"
+                                : "rgba(11, 18, 21, 0.4)",
+                            }}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "48px",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {movies.slice(2, 4).map((movie, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      aspectRatio: "2/3",
+                      ...posterSize,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {movie.posterUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={getProxiedImageUrl(movie.posterUrl) || ""}
+                          alt={`${movie.title} poster`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          crossOrigin="anonymous"
+                          onError={(e) => {
+                            console.error(
+                              `Failed to load image for ${movie.title}:`,
+                              {
+                                originalUrl: movie.posterUrl,
+                                proxiedUrl: getProxiedImageUrl(movie.posterUrl),
+                                error: e,
+                                apiUrl: process.env.REACT_APP_API_URL,
+                              }
+                            );
+                          }}
+                          onLoad={() => {
+                            console.log(
+                              `Successfully loaded image for ${movie.title}`
+                            );
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div style={{ textAlign: "center", padding: "16px" }}>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              margin: "0 auto 8px",
+                              color: isDarkMode
+                                ? "rgba(250, 249, 246, 0.4)"
+                                : "rgba(11, 18, 21, 0.4)",
+                            }}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : movies.length === 5 ? (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "48px",
+                  marginBottom: "24px",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {movies.slice(0, 2).map((movie, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      aspectRatio: "2/3",
+                      ...posterSize,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {movie.posterUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={getProxiedImageUrl(movie.posterUrl) || ""}
+                          alt={`${movie.title} poster`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          crossOrigin="anonymous"
+                          onError={(e) => {
+                            console.error(
+                              `Failed to load image for ${movie.title}:`,
+                              {
+                                originalUrl: movie.posterUrl,
+                                proxiedUrl: getProxiedImageUrl(movie.posterUrl),
+                                error: e,
+                                apiUrl: process.env.REACT_APP_API_URL,
+                              }
+                            );
+                          }}
+                          onLoad={() => {
+                            console.log(
+                              `Successfully loaded image for ${movie.title}`
+                            );
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div style={{ textAlign: "center", padding: "16px" }}>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              margin: "0 auto 8px",
+                              color: isDarkMode
+                                ? "rgba(250, 249, 246, 0.4)"
+                                : "rgba(11, 18, 21, 0.4)",
+                            }}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "48px",
+                  marginBottom: "24px",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {movies.slice(2, 4).map((movie, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      aspectRatio: "2/3",
+                      ...posterSize,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {movie.posterUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={getProxiedImageUrl(movie.posterUrl) || ""}
+                          alt={`${movie.title} poster`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          crossOrigin="anonymous"
+                          onError={(e) => {
+                            console.error(
+                              `Failed to load image for ${movie.title}:`,
+                              {
+                                originalUrl: movie.posterUrl,
+                                proxiedUrl: getProxiedImageUrl(movie.posterUrl),
+                                error: e,
+                                apiUrl: process.env.REACT_APP_API_URL,
+                              }
+                            );
+                          }}
+                          onLoad={() => {
+                            console.log(
+                              `Successfully loaded image for ${movie.title}`
+                            );
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div style={{ textAlign: "center", padding: "16px" }}>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              margin: "0 auto 8px",
+                              color: isDarkMode
+                                ? "rgba(250, 249, 246, 0.4)"
+                                : "rgba(11, 18, 21, 0.4)",
+                            }}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div
+                style={{
+                  aspectRatio: "2/3",
+                  ...posterSize,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                {movies[4].posterUrl ? (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      position: "relative",
+                      backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                      borderRadius: "8px",
+                      overflow: "hidden",
+                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                    }}
+                  >
+                    <img
+                      src={getProxiedImageUrl(movies[4].posterUrl) || ""}
+                      alt={`${movies[4].title} poster`}
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        display: "block",
+                      }}
+                      crossOrigin="anonymous"
+                      onError={(e) => {
+                        console.error(
+                          `Failed to load image for ${movies[4].title}:`,
+                          {
+                            originalUrl: movies[4].posterUrl,
+                            proxiedUrl: getProxiedImageUrl(movies[4].posterUrl),
+                            error: e,
+                            apiUrl: process.env.REACT_APP_API_URL,
+                          }
+                        );
+                      }}
+                      onLoad={() => {
+                        console.log(
+                          `Successfully loaded image for ${movies[4].title}`
+                        );
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                    }}
+                  >
+                    <div style={{ textAlign: "center", padding: "16px" }}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        style={{
+                          width: "48px",
+                          height: "48px",
+                          margin: "0 auto 8px",
+                          color: isDarkMode
+                            ? "rgba(250, 249, 246, 0.4)"
+                            : "rgba(11, 18, 21, 0.4)",
+                        }}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : movies.length === 6 ? (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "48px",
+                  marginBottom: "24px",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {movies.slice(0, 2).map((movie, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      aspectRatio: "2/3",
+                      ...posterSize,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {movie.posterUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={getProxiedImageUrl(movie.posterUrl) || ""}
+                          alt={`${movie.title} poster`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          crossOrigin="anonymous"
+                          onError={(e) => {
+                            console.error(
+                              `Failed to load image for ${movie.title}:`,
+                              {
+                                originalUrl: movie.posterUrl,
+                                proxiedUrl: getProxiedImageUrl(movie.posterUrl),
+                                error: e,
+                                apiUrl: process.env.REACT_APP_API_URL,
+                              }
+                            );
+                          }}
+                          onLoad={() => {
+                            console.log(
+                              `Successfully loaded image for ${movie.title}`
+                            );
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div style={{ textAlign: "center", padding: "16px" }}>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              margin: "0 auto 8px",
+                              color: isDarkMode
+                                ? "rgba(250, 249, 246, 0.4)"
+                                : "rgba(11, 18, 21, 0.4)",
+                            }}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "48px",
+                  marginBottom: "24px",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {movies.slice(2, 4).map((movie, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      aspectRatio: "2/3",
+                      ...posterSize,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {movie.posterUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={getProxiedImageUrl(movie.posterUrl) || ""}
+                          alt={`${movie.title} poster`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          crossOrigin="anonymous"
+                          onError={(e) => {
+                            console.error(
+                              `Failed to load image for ${movie.title}:`,
+                              {
+                                originalUrl: movie.posterUrl,
+                                proxiedUrl: getProxiedImageUrl(movie.posterUrl),
+                                error: e,
+                                apiUrl: process.env.REACT_APP_API_URL,
+                              }
+                            );
+                          }}
+                          onLoad={() => {
+                            console.log(
+                              `Successfully loaded image for ${movie.title}`
+                            );
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div style={{ textAlign: "center", padding: "16px" }}>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              margin: "0 auto 8px",
+                              color: isDarkMode
+                                ? "rgba(250, 249, 246, 0.4)"
+                                : "rgba(11, 18, 21, 0.4)",
+                            }}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "48px",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {movies.slice(4, 6).map((movie, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      aspectRatio: "2/3",
+                      ...posterSize,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {movie.posterUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={getProxiedImageUrl(movie.posterUrl) || ""}
+                          alt={`${movie.title} poster`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          crossOrigin="anonymous"
+                          onError={(e) => {
+                            console.error(
+                              `Failed to load image for ${movie.title}:`,
+                              {
+                                originalUrl: movie.posterUrl,
+                                proxiedUrl: getProxiedImageUrl(movie.posterUrl),
+                                error: e,
+                                apiUrl: process.env.REACT_APP_API_URL,
+                              }
+                            );
+                          }}
+                          onLoad={() => {
+                            console.log(
+                              `Successfully loaded image for ${movie.title}`
+                            );
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div style={{ textAlign: "center", padding: "16px" }}>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              margin: "0 auto 8px",
+                              color: isDarkMode
+                                ? "rgba(250, 249, 246, 0.4)"
+                                : "rgba(11, 18, 21, 0.4)",
+                            }}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : movies.length === 7 ? (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "48px",
+                  marginBottom: "24px",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {movies.slice(0, 3).map((movie, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      aspectRatio: "2/3",
+                      ...posterSize,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {movie.posterUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={getProxiedImageUrl(movie.posterUrl) || ""}
+                          alt={`${movie.title} poster`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          crossOrigin="anonymous"
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            textAlign: "center",
+                            padding: "16px",
+                            color: isDarkMode ? "#faf9f6" : "#0b1215",
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              margin: "0 auto 8px",
+                            }}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                            />
+                          </svg>
+                          <p style={{ fontSize: "14px" }}>
+                            Image not available
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "48px",
+                  marginBottom: "24px",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {movies.slice(3, 6).map((movie, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      aspectRatio: "2/3",
+                      ...posterSize,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {movie.posterUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={getProxiedImageUrl(movie.posterUrl) || ""}
+                          alt={`${movie.title} poster`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          crossOrigin="anonymous"
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            textAlign: "center",
+                            padding: "16px",
+                            color: isDarkMode ? "#faf9f6" : "#0b1215",
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              margin: "0 auto 8px",
+                            }}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                            />
+                          </svg>
+                          <p style={{ fontSize: "14px" }}>
+                            Image not available
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                <div
+                  style={{
+                    aspectRatio: "2/3",
+                    ...posterSize,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  {movies[6].posterUrl ? (
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        position: "relative",
+                        backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                        borderRadius: "8px",
+                        overflow: "hidden",
+                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                      }}
+                    >
+                      <img
+                        src={getProxiedImageUrl(movies[6].posterUrl) || ""}
+                        alt={`${movies[6].title} poster`}
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                          display: "block",
+                        }}
+                        crossOrigin="anonymous"
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          textAlign: "center",
+                          padding: "16px",
+                          color: isDarkMode ? "#faf9f6" : "#0b1215",
+                        }}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          style={{
+                            width: "48px",
+                            height: "48px",
+                            margin: "0 auto 8px",
+                          }}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                          />
+                        </svg>
+                        <p style={{ fontSize: "14px" }}>Image not available</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
-          </div>
-        ))}
+            </>
+          ) : movies.length === 8 ? (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "48px",
+                  marginBottom: "24px",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {movies.slice(0, 3).map((movie, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      aspectRatio: "2/3",
+                      ...posterSize,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {movie.posterUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={getProxiedImageUrl(movie.posterUrl) || ""}
+                          alt={`${movie.title} poster`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          crossOrigin="anonymous"
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            textAlign: "center",
+                            padding: "16px",
+                            color: isDarkMode ? "#faf9f6" : "#0b1215",
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              margin: "0 auto 8px",
+                            }}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                            />
+                          </svg>
+                          <p style={{ fontSize: "14px" }}>
+                            Image not available
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "48px",
+                  marginBottom: "24px",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {movies.slice(3, 6).map((movie, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      aspectRatio: "2/3",
+                      ...posterSize,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {movie.posterUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={getProxiedImageUrl(movie.posterUrl) || ""}
+                          alt={`${movie.title} poster`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          crossOrigin="anonymous"
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            textAlign: "center",
+                            padding: "16px",
+                            color: isDarkMode ? "#faf9f6" : "#0b1215",
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              margin: "0 auto 8px",
+                            }}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                            />
+                          </svg>
+                          <p style={{ fontSize: "14px" }}>
+                            Image not available
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "48px",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {movies.slice(6, 8).map((movie, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      aspectRatio: "2/3",
+                      ...posterSize,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {movie.posterUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={getProxiedImageUrl(movie.posterUrl) || ""}
+                          alt={`${movie.title} poster`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          crossOrigin="anonymous"
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            textAlign: "center",
+                            padding: "16px",
+                            color: isDarkMode ? "#faf9f6" : "#0b1215",
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              margin: "0 auto 8px",
+                            }}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                            />
+                          </svg>
+                          <p style={{ fontSize: "14px" }}>
+                            Image not available
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : movies.length === 9 ? (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "48px",
+                  marginBottom: "24px",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {movies.slice(0, 3).map((movie, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      aspectRatio: "2/3",
+                      ...posterSize,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {movie.posterUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={getProxiedImageUrl(movie.posterUrl) || ""}
+                          alt={`${movie.title} poster`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          crossOrigin="anonymous"
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            textAlign: "center",
+                            padding: "16px",
+                            color: isDarkMode ? "#faf9f6" : "#0b1215",
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              margin: "0 auto 8px",
+                            }}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                            />
+                          </svg>
+                          <p style={{ fontSize: "14px" }}>
+                            Image not available
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "48px",
+                  marginBottom: "24px",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {movies.slice(3, 6).map((movie, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      aspectRatio: "2/3",
+                      ...posterSize,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {movie.posterUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={getProxiedImageUrl(movie.posterUrl) || ""}
+                          alt={`${movie.title} poster`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          crossOrigin="anonymous"
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            textAlign: "center",
+                            padding: "16px",
+                            color: isDarkMode ? "#faf9f6" : "#0b1215",
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              margin: "0 auto 8px",
+                            }}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                            />
+                          </svg>
+                          <p style={{ fontSize: "14px" }}>
+                            Image not available
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "48px",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {movies.slice(6, 9).map((movie, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      aspectRatio: "2/3",
+                      ...posterSize,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {movie.posterUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={getProxiedImageUrl(movie.posterUrl) || ""}
+                          alt={`${movie.title} poster`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                          crossOrigin="anonymous"
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            textAlign: "center",
+                            padding: "16px",
+                            color: isDarkMode ? "#faf9f6" : "#0b1215",
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              margin: "0 auto 8px",
+                            }}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                            />
+                          </svg>
+                          <p style={{ fontSize: "14px" }}>
+                            Image not available
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            movies.map((movie, index) => (
+              <div
+                key={index}
+                style={{
+                  aspectRatio: "2/3",
+                  ...posterSize,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                {movie.posterUrl ? (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      position: "relative",
+                      backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                      borderRadius: "8px",
+                      overflow: "hidden",
+                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                    }}
+                  >
+                    <img
+                      src={getProxiedImageUrl(movie.posterUrl) || ""}
+                      alt={`${movie.title} poster`}
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        display: "block",
+                      }}
+                      crossOrigin="anonymous"
+                      onError={(e) => {
+                        console.error(
+                          `Failed to load image for ${movie.title}:`,
+                          {
+                            originalUrl: movie.posterUrl,
+                            proxiedUrl: getProxiedImageUrl(movie.posterUrl),
+                            error: e,
+                            apiUrl: process.env.REACT_APP_API_URL,
+                          }
+                        );
+                      }}
+                      onLoad={() => {
+                        console.log(
+                          `Successfully loaded image for ${movie.title}`
+                        );
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                    }}
+                  >
+                    <div style={{ textAlign: "center", padding: "16px" }}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        style={{
+                          width: "48px",
+                          height: "48px",
+                          margin: "0 auto 8px",
+                          color: isDarkMode
+                            ? "rgba(250, 249, 246, 0.4)"
+                            : "rgba(11, 18, 21, 0.4)",
+                        }}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
       </div>
       <div
         style={{
           textAlign: "center",
-          marginTop: "auto",
-          paddingBottom: "32px",
+          marginBottom: "100px",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
+        <div
+          style={{
+            fontSize: "40px",
+            fontWeight: "600",
+            marginBottom: "16px",
+            color: isDarkMode ? "#0ee65e" : "#0baf47",
+            width: "100%",
+          }}
+        >
+          Get your own recommendations at
+        </div>
         <a
           href="https://filmify-ai.onrender.com"
           target="_blank"
@@ -177,12 +2248,13 @@ function SharePreview({
           style={{
             display: "inline-flex",
             alignItems: "center",
-            fontSize: "28px",
+            fontSize: "40px",
             color: isDarkMode ? "#0ee65e" : "#0baf47",
             textDecoration: "none",
+            fontWeight: "600",
           }}
         >
-          <span>Get your own recommendations at filmify-ai.onrender.com</span>
+          <span>filmify-ai.onrender.com</span>
         </a>
       </div>
     </div>
@@ -330,8 +2402,11 @@ export function MovieRecommendations({
       setPreviewUrl(url);
       setIsGeneratingPreview(false);
 
-      // Try to use Web Share API if available
-      if (navigator.share) {
+      // Only try Web Share API on mobile devices that aren't Edge
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const isEdge = /Edg/i.test(navigator.userAgent);
+
+      if (isMobile && navigator.share && !isEdge) {
         try {
           const file = new File([blob], "filmify-recommendations.png", {
             type: "image/png",
@@ -348,10 +2423,10 @@ export function MovieRecommendations({
           return;
         } catch (shareError) {
           console.log(
-            "Web Share API failed, falling back to download:",
+            "Web Share API failed, falling back to preview:",
             shareError
           );
-          // Continue to fallback options
+          // Continue to show preview instead of downloading
         }
       }
     } catch (err) {
@@ -368,9 +2443,9 @@ export function MovieRecommendations({
     try {
       // Check if running on mobile
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      const isAndroid = /Android/i.test(navigator.userAgent);
+      const isEdge = /Edg/i.test(navigator.userAgent);
 
-      if (isMobile && navigator.share) {
+      if (isMobile && navigator.share && !isEdge) {
         try {
           const response = await fetch(previewUrl);
           const blob = await response.blob();

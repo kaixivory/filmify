@@ -197,7 +197,7 @@ export async function generateMovieRecommendations(
 
     // Create the prompt with the matching movies
     const prompt = [
-      `Based on this Spotify playlist, recommend ${numRecs} movies from the following list that best match its vibe:`,
+      `Based on this Spotify playlist, recommend EXACTLY ${numRecs} movies from the following list that best match its vibe:`,
       playlist.name,
       playlist.tracks
         .map(
@@ -216,78 +216,109 @@ export async function generateMovieRecommendations(
           `Overview: ${movie.overview}`
       ),
       "",
-      `Format response as a JSON array with objects containing: title, year, reason (max 700 chars).`,
+      `IMPORTANT: You MUST return EXACTLY ${numRecs} movies. Format response as a JSON array with objects containing: title, year, reason (max 700 chars).`,
       "",
       "For each movie, explain how it connects with the playlist by referencing specific songs and their themes, moods, or styles. For example: 'The movie's themes of [theme] connect with [Song Name]'s [specific aspect], while its [movie aspect] matches the mood of [Another Song]'.",
     ].join("\n");
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.7,
-      max_tokens: 1000,
-    });
+    let attempts = 0;
+    const maxAttempts = 3;
+    let detailedRecommendations: MovieRecommendation[] = [];
+    let lastContent: string | undefined;
 
-    const content = completion.choices[0].message.content;
-    if (!content) {
-      throw new Error("No response from OpenAI API");
-    }
+    while (
+      attempts < maxAttempts &&
+      detailedRecommendations.length !== numRecs
+    ) {
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7,
+        max_tokens: 1000,
+      });
 
-    try {
-      const jsonMatch = content.match(/\[[\s\S]*\]/);
-      if (!jsonMatch) {
-        // Try to find any JSON-like structure
-        const anyJsonMatch = content.match(/\{[\s\S]*\}/);
-        if (anyJsonMatch) {
-          try {
-            // Try to parse as a single object and wrap it in an array
-            const singleObject = JSON.parse(anyJsonMatch[0]);
-            const recommendations = [singleObject];
-            if (!Array.isArray(recommendations)) {
-              throw new Error("Response is not an array");
+      const content = completion.choices[0].message.content;
+      if (!content) {
+        throw new Error("No response from OpenAI API");
+      }
+      lastContent = content;
+
+      try {
+        const jsonMatch = content.match(/\[[\s\S]*\]/);
+        if (!jsonMatch) {
+          // Try to find any JSON-like structure
+          const anyJsonMatch = content.match(/\{[\s\S]*\}/);
+          if (anyJsonMatch) {
+            try {
+              // Try to parse as a single object and wrap it in an array
+              const singleObject = JSON.parse(anyJsonMatch[0]);
+              const recommendations = [singleObject];
+              if (!Array.isArray(recommendations)) {
+                throw new Error("Response is not an array");
+              }
+              // Continue with the rest of the processing...
+            } catch (parseError) {
+              throw new Error("Invalid JSON format in response");
             }
-            // Continue with the rest of the processing...
-          } catch (parseError) {
-            throw new Error("Invalid JSON format in response");
+          } else {
+            throw new Error("No valid JSON found in the response");
           }
-        } else {
-          throw new Error("No valid JSON found in the response");
+        }
+
+        const recommendations = JSON.parse(jsonMatch[0]);
+        if (!Array.isArray(recommendations)) {
+          throw new Error("Response is not an array");
+        }
+
+        // Map the recommendations to the full movie details
+        detailedRecommendations = recommendations
+          .map((rec) => {
+            const movie = matchingMovies.find((m) => m.title === rec.title);
+            if (!movie) return null;
+
+            return {
+              id: movie.id,
+              title: movie.title,
+              year: movie.year,
+              reason: rec.reason,
+              posterUrl: movie.poster_path
+                ? `${TMDB_IMAGE_BASE_URL}${movie.poster_path}`
+                : null,
+              rating: movie.rating,
+              genres: movie.genres,
+              runtime: movie.runtime,
+              ageRating: movie.ageRating,
+            };
+          })
+          .filter(Boolean);
+
+        // If we don't have enough recommendations, try again
+        if (detailedRecommendations.length !== numRecs) {
+          attempts++;
+          if (attempts < maxAttempts) {
+            console.log(
+              `Attempt ${attempts}: Got ${detailedRecommendations.length} recommendations, retrying...`
+            );
+            continue;
+          }
+        }
+      } catch (error) {
+        console.error("Error parsing response:", error);
+        attempts++;
+        if (attempts < maxAttempts) {
+          console.log(
+            `Attempt ${attempts}: Error parsing response, retrying...`
+          );
+          continue;
         }
       }
+    }
 
-      const recommendations = JSON.parse(jsonMatch[0]);
-      if (!Array.isArray(recommendations)) {
-        throw new Error("Response is not an array");
-      }
-
-      // Map the recommendations to the full movie details
-      const detailedRecommendations = recommendations
-        .map((rec) => {
-          const movie = matchingMovies.find((m) => m.title === rec.title);
-          if (!movie) return null;
-
-          return {
-            id: movie.id,
-            title: movie.title,
-            year: movie.year,
-            reason: rec.reason,
-            posterUrl: movie.poster_path
-              ? `${TMDB_IMAGE_BASE_URL}${movie.poster_path}`
-              : null,
-            rating: movie.rating,
-            genres: movie.genres,
-            runtime: movie.runtime,
-            ageRating: movie.ageRating,
-          };
-        })
-        .filter(Boolean);
-
-      return detailedRecommendations.slice(0, numRecs);
-    } catch (error) {
-      console.error("Error parsing response:", error);
-      // Try to extract any valid movie recommendations from the text
+    // If we still don't have enough recommendations after all attempts,
+    // try to extract any valid movie recommendations from the text
+    if (detailedRecommendations.length !== numRecs && lastContent) {
       try {
-        const lines = content.split("\n");
+        const lines = lastContent.split("\n");
         const extractedMovies = [];
 
         for (const line of lines) {
@@ -320,18 +351,21 @@ export async function generateMovieRecommendations(
         }
 
         if (extractedMovies.length > 0) {
-          return extractedMovies.slice(0, numRecs);
+          detailedRecommendations = extractedMovies;
         }
       } catch (extractError) {
         console.error("Error extracting movies from text:", extractError);
       }
+    }
 
+    // If we still don't have enough recommendations, throw an error
+    if (detailedRecommendations.length !== numRecs) {
       throw new Error(
-        `Failed to parse movie recommendations: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
+        `Failed to generate exactly ${numRecs} movie recommendations. Got ${detailedRecommendations.length} instead.`
       );
     }
+
+    return detailedRecommendations;
   } catch (error) {
     console.error("OpenAI API error:", error);
     throw new Error(

@@ -324,7 +324,7 @@ function App() {
                 : "bg-[#0b1215] text-[#faf9f6]"
             } focus:outline-none font-montserrat text-sm text-center transition-all duration-300`}
           >
-            {[...Array(10)].map((_, i) => (
+            {[...Array(9)].map((_, i) => (
               <option key={i + 1} value={i + 1}>
                 {i + 1}
               </option>

@@ -22,15 +22,43 @@ console.log("Environment check:", {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Configure CORS
+// Configure CORS with specific origin
+const allowedOrigins = [
+  "https://filmify-ai.onrender.com",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+];
+
+// Determine if we're in development mode
+const isDevelopment = process.env.NODE_ENV !== "production";
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "*",
+    origin: function (origin, callback) {
+      // In development, allow all origins
+      if (isDevelopment) {
+        return callback(null, true);
+      }
+
+      // In production, check against allowed origins
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        console.log("Allowed origin:", origin);
+        return callback(null, true);
+      }
+
+      console.log("Blocked origin:", origin);
+      const msg =
+        "The CORS policy for this site does not allow access from the specified Origin.";
+      return callback(new Error(msg), false);
+    },
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
+
+// Add OPTIONS handling for preflight requests
+app.options("*", cors());
 
 app.use(express.json());
 

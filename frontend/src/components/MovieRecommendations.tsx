@@ -26,8 +26,12 @@ const getProxiedImageUrl = (tmdbPath: string | null) => {
     return null;
   }
 
-  // Use the backend URL from environment variable, fallback to localhost:5000
-  const backendUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+  // Determine backend URL based on current environment
+  const isProduction = window.location.hostname === "filmify-ai.onrender.com";
+  const backendUrl = isProduction
+    ? "https://filmify-ai-webservice.onrender.com"
+    : "http://localhost:5000";
+
   const proxiedUrl = `${backendUrl}/api/movies/proxy/poster/${path}`;
   console.log("Generated proxied URL:", proxiedUrl);
   return proxiedUrl;

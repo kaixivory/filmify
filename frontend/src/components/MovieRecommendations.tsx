@@ -258,6 +258,10 @@ export function MovieRecommendations({
       setPreviewUrl(url);
       setIsGeneratingPreview(false);
 
+      // Check if running on mobile
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
       // Try to use Web Share API if available
       if (navigator.share) {
         try {
@@ -282,6 +286,17 @@ export function MovieRecommendations({
           // Continue to fallback options
         }
       }
+
+      // If Web Share API is not available or failed, and we're on mobile
+      if (isMobile) {
+        if (isIOS) {
+          // For iOS, open in new tab
+          window.open(url, "_blank");
+        } else {
+          // For Android, show preview and let user save through the UI
+          // The preview is already shown, and the save button will handle the download
+        }
+      }
     } catch (err) {
       console.error("Error generating share image:", err);
       setShowPreview(false);
@@ -296,47 +311,49 @@ export function MovieRecommendations({
     try {
       // Check if running on mobile
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
       const isAndroid = /Android/i.test(navigator.userAgent);
 
-      if (isMobile && navigator.share) {
-        try {
-          const response = await fetch(previewUrl);
-          const blob = await response.blob();
-          const file = new File([blob], "filmify-recommendations.png", {
-            type: "image/png",
-          });
-
-          await navigator.share({
-            files: [file],
-            title: "Filmify Recommendations",
-            text: `Check out these movie recommendations for "${playlistName}"!`,
-            url: "https://filmify-ai.onrender.com",
-          });
-
-          handleClose();
-          return;
-        } catch (shareError) {
-          console.error("Error sharing:", shareError);
-          // Fall back to download
-        }
-      }
-
-      // Handle different mobile browsers
       if (isMobile) {
-        if (isAndroid) {
-          // For Android, try to download directly
+        if (navigator.share) {
+          try {
+            const response = await fetch(previewUrl);
+            const blob = await response.blob();
+            const file = new File([blob], "filmify-recommendations.png", {
+              type: "image/png",
+            });
+
+            await navigator.share({
+              files: [file],
+              title: "Filmify Recommendations",
+              text: `Check out these movie recommendations for "${playlistName}"!`,
+              url: "https://filmify-ai.onrender.com",
+            });
+
+            handleClose();
+            return;
+          } catch (shareError) {
+            console.error("Error sharing:", shareError);
+            // Fall back to browser-specific handling
+          }
+        }
+
+        // Browser-specific handling
+        if (isIOS) {
+          // For iOS, open in new tab (Safari handles this well)
+          window.open(previewUrl, "_blank");
+        } else if (isAndroid) {
+          // For Android, try to trigger download through user interaction
           const link = document.createElement("a");
           link.href = previewUrl;
-          link.download = "filmify-recommendations.png";
+          link.target = "_blank"; // Open in new tab instead of download
+          link.rel = "noopener noreferrer";
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-        } else {
-          // For iOS, open in new tab
-          window.open(previewUrl, "_blank");
         }
       } else {
-        // Regular download for desktop
+        // Desktop browsers - use standard download
         const link = document.createElement("a");
         link.href = previewUrl;
         link.download = "filmify-recommendations.png";

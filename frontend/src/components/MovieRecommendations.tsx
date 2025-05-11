@@ -393,29 +393,13 @@ export function MovieRecommendations({
         }
       }
 
-      // Handle different mobile browsers
-      if (isMobile) {
-        if (isAndroid) {
-          // For Android, try to download directly
-          const link = document.createElement("a");
-          link.href = previewUrl;
-          link.download = "filmify-recommendations.png";
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        } else {
-          // For iOS, open in new tab
-          window.open(previewUrl, "_blank");
-        }
-      } else {
-        // Regular download for desktop
-        const link = document.createElement("a");
-        link.href = previewUrl;
-        link.download = "filmify-recommendations.png";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+      // For all devices, use direct download
+      const link = document.createElement("a");
+      link.href = previewUrl;
+      link.download = "filmify-recommendations.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
       handleClose();
     } catch (err) {

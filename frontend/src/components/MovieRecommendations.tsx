@@ -61,17 +61,31 @@ function SharePreview({
         {movies.map((movie, index) => (
           <div key={index} style={{ aspectRatio: "2/3", width: "320px" }}>
             {movie.posterUrl ? (
-              <img
-                src={movie.posterUrl}
-                alt={`${movie.title} poster`}
+              <div
                 style={{
                   width: "100%",
                   height: "100%",
-                  objectFit: "contain",
+                  position: "relative",
+                  backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
                   borderRadius: "8px",
+                  overflow: "hidden",
                 }}
-                crossOrigin="anonymous"
-              />
+              >
+                <img
+                  src={movie.posterUrl}
+                  alt={`${movie.title} poster`}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                    display: "block",
+                  }}
+                  crossOrigin="anonymous"
+                />
+              </div>
             ) : (
               <div
                 style={{
@@ -174,22 +188,52 @@ export function MovieRecommendations({
         />
       );
 
-      // Wait for the component to render and images to load
+      // Wait for initial render
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Load all images and wait for them to complete
+      const imagePromises = recommendations
+        .filter((movie) => movie.posterUrl)
+        .map(
+          (movie) =>
+            new Promise((resolve, reject) => {
+              const img = new Image();
+              img.crossOrigin = "anonymous";
+              img.onload = () => resolve(img);
+              img.onerror = () =>
+                reject(new Error(`Failed to load image: ${movie.title}`));
+              img.src = movie.posterUrl!;
+            })
+        );
+
+      try {
+        await Promise.all(imagePromises);
+      } catch (error) {
+        console.warn("Some images failed to load:", error);
+      }
+
+      // Additional wait to ensure everything is rendered
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Use html2canvas with enhanced options for better cross-browser compatibility
+      // Use html2canvas with simplified options
       const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
         logging: true,
-        imageTimeout: 15000, // Increase timeout for image loading
+        imageTimeout: 15000,
         onclone: (clonedDoc) => {
-          const images = clonedDoc.getElementsByTagName("img");
-          for (let i = 0; i < images.length; i++) {
-            images[i].crossOrigin = "anonymous";
-          }
+          const images = Array.from(clonedDoc.getElementsByTagName("img"));
+          images.forEach((img) => {
+            if (img) {
+              img.crossOrigin = "anonymous";
+              img.style.display = "block";
+              img.style.width = "100%";
+              img.style.height = "100%";
+              img.style.objectFit = "contain";
+            }
+          });
         },
       });
 
@@ -252,6 +296,7 @@ export function MovieRecommendations({
     try {
       // Check if running on mobile
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const isAndroid = /Android/i.test(navigator.userAgent);
 
       if (isMobile && navigator.share) {
         try {
@@ -276,20 +321,28 @@ export function MovieRecommendations({
         }
       }
 
-      // Regular download for desktop or if sharing fails
-      const link = document.createElement("a");
-      link.href = previewUrl;
-      link.download = "filmify-recommendations.png";
-
-      // Add link to document, click it, and remove it
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // For iOS Safari, we need to handle the download differently
-      if (isMobile && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-        // Open the image in a new tab
-        window.open(previewUrl, "_blank");
+      // Handle different mobile browsers
+      if (isMobile) {
+        if (isAndroid) {
+          // For Android, try to download directly
+          const link = document.createElement("a");
+          link.href = previewUrl;
+          link.download = "filmify-recommendations.png";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } else {
+          // For iOS, open in new tab
+          window.open(previewUrl, "_blank");
+        }
+      } else {
+        // Regular download for desktop
+        const link = document.createElement("a");
+        link.href = previewUrl;
+        link.download = "filmify-recommendations.png";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       }
 
       handleClose();

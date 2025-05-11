@@ -30,18 +30,20 @@ function SharePreview({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
-        padding: "48px",
+        justifyContent: "flex-start",
+        padding: "32px",
+        overflow: "hidden",
       }}
     >
       <h1
         style={{
           color: isDarkMode ? "#0ee65e" : "#0baf47",
           fontFamily: "Poppins, sans-serif",
-          fontSize: "48px",
+          fontSize: "42px",
           fontWeight: "800",
-          marginBottom: "48px",
+          marginBottom: "32px",
           textAlign: "center",
+          maxWidth: "1000px",
         }}
       >
         Your Perfect {movies.length === 1 ? "Movie" : "Movies"} for "
@@ -51,11 +53,13 @@ function SharePreview({
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(2, 1fr)",
-          gap: "32px",
+          gap: "24px",
+          maxWidth: "1000px",
+          marginBottom: "32px",
         }}
       >
         {movies.map((movie, index) => (
-          <div key={index} style={{ aspectRatio: "2/3", width: "400px" }}>
+          <div key={index} style={{ aspectRatio: "2/3", width: "320px" }}>
             {movie.posterUrl ? (
               <img
                 src={movie.posterUrl}
@@ -108,7 +112,13 @@ function SharePreview({
           </div>
         ))}
       </div>
-      <div style={{ textAlign: "center", marginTop: "48px" }}>
+      <div
+        style={{
+          textAlign: "center",
+          marginTop: "auto",
+          paddingBottom: "32px",
+        }}
+      >
         <a
           href="https://filmify-ai.onrender.com"
           target="_blank"
@@ -116,7 +126,7 @@ function SharePreview({
           style={{
             display: "inline-flex",
             alignItems: "center",
-            fontSize: "32px",
+            fontSize: "28px",
             color: isDarkMode ? "#0ee65e" : "#0baf47",
             textDecoration: "none",
           }}
@@ -164,16 +174,17 @@ export function MovieRecommendations({
         />
       );
 
-      // Wait for the component to render
+      // Wait for the component to render and images to load
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Use html2canvas with basic options
+      // Use html2canvas with enhanced options for better cross-browser compatibility
       const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
         logging: true,
+        imageTimeout: 15000, // Increase timeout for image loading
         onclone: (clonedDoc) => {
           const images = clonedDoc.getElementsByTagName("img");
           for (let i = 0; i < images.length; i++) {
@@ -202,10 +213,36 @@ export function MovieRecommendations({
       const url = URL.createObjectURL(blob);
       setPreviewUrl(url);
       setIsGeneratingPreview(false);
+
+      // Try to use Web Share API if available
+      if (navigator.share) {
+        try {
+          const file = new File([blob], "filmify-recommendations.png", {
+            type: "image/png",
+          });
+
+          await navigator.share({
+            files: [file],
+            title: "Filmify Recommendations",
+            text: `Check out these movie recommendations for "${playlistName}"!`,
+            url: "https://filmify-ai.onrender.com",
+          });
+
+          handleClose();
+          return;
+        } catch (shareError) {
+          console.log(
+            "Web Share API failed, falling back to download:",
+            shareError
+          );
+          // Continue to fallback options
+        }
+      }
     } catch (err) {
       console.error("Error generating share image:", err);
       setShowPreview(false);
       setIsGeneratingPreview(false);
+      alert("Failed to generate share image. Please try again.");
     }
   };
 
@@ -227,13 +264,15 @@ export function MovieRecommendations({
           await navigator.share({
             files: [file],
             title: "Filmify Recommendations",
-            text: "Check out these movie recommendations!",
+            text: `Check out these movie recommendations for "${playlistName}"!`,
+            url: "https://filmify-ai.onrender.com",
           });
 
           handleClose();
           return;
         } catch (shareError) {
           console.error("Error sharing:", shareError);
+          // Fall back to download
         }
       }
 
@@ -241,9 +280,17 @@ export function MovieRecommendations({
       const link = document.createElement("a");
       link.href = previewUrl;
       link.download = "filmify-recommendations.png";
+
+      // Add link to document, click it, and remove it
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+
+      // For iOS Safari, we need to handle the download differently
+      if (isMobile && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        // Open the image in a new tab
+        window.open(previewUrl, "_blank");
+      }
 
       handleClose();
     } catch (err) {
@@ -253,11 +300,11 @@ export function MovieRecommendations({
   };
 
   const handleClose = () => {
+    setShowPreview(false);
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
     }
-    setPreviewUrl(null);
-    setShowPreview(false);
   };
 
   if (isLoading) {

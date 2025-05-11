@@ -167,18 +167,17 @@ export function MovieRecommendations({
         />
       );
 
-      // Wait for the component to render
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      // Wait for the component to render and images to load
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Use html2canvas with mobile-friendly options
       const canvas = await html2canvas(container, {
-        scale: 2, // Higher scale for better quality
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
-        logging: false,
+        logging: true,
         onclone: (clonedDoc) => {
-          // Set crossOrigin for all images in the cloned document
           const images = clonedDoc.getElementsByTagName("img");
           for (let i = 0; i < images.length; i++) {
             images[i].crossOrigin = "anonymous";
@@ -213,20 +212,53 @@ export function MovieRecommendations({
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!previewUrl) return;
 
-    // Create a temporary link element
-    const link = document.createElement("a");
-    link.href = previewUrl;
-    link.download = "filmify-recommendations.png";
+    try {
+      // Check if running on mobile
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-    // Append to body, click, and remove
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      if (isMobile) {
+        // For mobile devices, try to use the Web Share API if available
+        if (navigator.share) {
+          try {
+            const response = await fetch(previewUrl);
+            const blob = await response.blob();
+            const file = new File([blob], "filmify-recommendations.png", {
+              type: "image/png",
+            });
 
-    handleClose();
+            await navigator.share({
+              files: [file],
+              title: "Filmify Recommendations",
+              text: "Check out these movie recommendations!",
+            });
+
+            handleClose();
+            return;
+          } catch (shareError) {
+            console.error("Error sharing:", shareError);
+            // Fall back to regular download if sharing fails
+          }
+        }
+      }
+
+      // Regular download for desktop or if sharing fails
+      const link = document.createElement("a");
+      link.href = previewUrl;
+      link.download = "filmify-recommendations.png";
+
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      handleClose();
+    } catch (err) {
+      console.error("Error saving image:", err);
+      alert("Failed to save image. Please try again.");
+    }
   };
 
   const handleClose = () => {

@@ -70,6 +70,7 @@ function SharePreview({
                   borderRadius: "8px",
                 }}
                 crossOrigin="anonymous"
+                loading="eager"
               />
             ) : (
               <div
@@ -150,6 +151,21 @@ export function MovieRecommendations({
     setIsGeneratingPreview(true);
 
     try {
+      // Preload all images first
+      const imagePromises = recommendations.map((movie) => {
+        if (!movie.posterUrl) return Promise.resolve(null);
+        return new Promise<HTMLImageElement | null>((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = movie.posterUrl;
+        });
+      });
+
+      // Wait for all images to load
+      await Promise.all(imagePromises);
+
       // Create a temporary container for the share preview
       const container = document.createElement("div");
       container.style.position = "absolute";
@@ -167,8 +183,8 @@ export function MovieRecommendations({
         />
       );
 
-      // Wait for the component to render and images to load
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Wait for the component to render
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Use html2canvas with mobile-friendly options
       const canvas = await html2canvas(container, {
@@ -177,10 +193,15 @@ export function MovieRecommendations({
         allowTaint: true,
         backgroundColor: isDarkMode ? "#0b1215" : "#faf9f6",
         logging: true,
+        imageTimeout: 0,
         onclone: (clonedDoc) => {
           const images = clonedDoc.getElementsByTagName("img");
           for (let i = 0; i < images.length; i++) {
             images[i].crossOrigin = "anonymous";
+            // Force image reload with crossOrigin
+            const src = images[i].src;
+            images[i].src = "";
+            images[i].src = src;
           }
         },
       });

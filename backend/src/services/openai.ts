@@ -236,7 +236,23 @@ export async function generateMovieRecommendations(
     try {
       const jsonMatch = content.match(/\[[\s\S]*\]/);
       if (!jsonMatch) {
-        throw new Error("No valid JSON array found in the response");
+        // Try to find any JSON-like structure
+        const anyJsonMatch = content.match(/\{[\s\S]*\}/);
+        if (anyJsonMatch) {
+          try {
+            // Try to parse as a single object and wrap it in an array
+            const singleObject = JSON.parse(anyJsonMatch[0]);
+            const recommendations = [singleObject];
+            if (!Array.isArray(recommendations)) {
+              throw new Error("Response is not an array");
+            }
+            // Continue with the rest of the processing...
+          } catch (parseError) {
+            throw new Error("Invalid JSON format in response");
+          }
+        } else {
+          throw new Error("No valid JSON found in the response");
+        }
       }
 
       const recommendations = JSON.parse(jsonMatch[0]);
@@ -269,6 +285,47 @@ export async function generateMovieRecommendations(
       return detailedRecommendations.slice(0, numRecs);
     } catch (error) {
       console.error("Error parsing response:", error);
+      // Try to extract any valid movie recommendations from the text
+      try {
+        const lines = content.split("\n");
+        const extractedMovies = [];
+
+        for (const line of lines) {
+          if (line.includes("title") || line.includes("Title")) {
+            const titleMatch =
+              line.match(/"title"\s*:\s*"([^"]+)"/) ||
+              line.match(/Title:\s*([^\n]+)/) ||
+              line.match(/Movie:\s*([^\n]+)/);
+
+            if (titleMatch) {
+              const title = titleMatch[1].trim();
+              const movie = matchingMovies.find((m) => m.title === title);
+              if (movie) {
+                extractedMovies.push({
+                  id: movie.id,
+                  title: movie.title,
+                  year: movie.year,
+                  reason: "Recommended based on your playlist's vibe",
+                  posterUrl: movie.poster_path
+                    ? `${TMDB_IMAGE_BASE_URL}${movie.poster_path}`
+                    : null,
+                  rating: movie.rating,
+                  genres: movie.genres,
+                  runtime: movie.runtime,
+                  ageRating: movie.ageRating,
+                });
+              }
+            }
+          }
+        }
+
+        if (extractedMovies.length > 0) {
+          return extractedMovies.slice(0, numRecs);
+        }
+      } catch (extractError) {
+        console.error("Error extracting movies from text:", extractError);
+      }
+
       throw new Error(
         `Failed to parse movie recommendations: ${
           error instanceof Error ? error.message : "Unknown error"

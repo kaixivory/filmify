@@ -2,6 +2,11 @@ import OpenAI from "openai";
 import { searchMovies, getMovieDetails, getGenres } from "./tmdb";
 import dotenv from "dotenv";
 import { SpotifyPlaylist } from "./spotify";
+import {
+  AGE_RATINGS,
+  RUNTIME_GROUPS,
+  RATING_GROUPS,
+} from "../types/preferences";
 
 // Load environment variables
 dotenv.config();
@@ -66,22 +71,133 @@ async function getMatchingMovies(
   page: number = 1
 ): Promise<any[]> {
   try {
-    // Get movies by genre (TMDB API allows multiple genres)
-    const genreMovies = await Promise.all(
-      selectedGenres.map((genreId) =>
-        fetch(
-          `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.TMDB_API_KEY}&with_genres=${genreId}&page=${page}&sort_by=popularity.desc`
-        ).then((res) => res.json())
-      )
-    );
+    // Check if all preferences are selected
+    const isAllSelected =
+      selectedGenres.length === Object.keys(genreMap).length &&
+      selectedAgeRatings.length === AGE_RATINGS.length &&
+      selectedRuntime.length === RUNTIME_GROUPS.length &&
+      selectedRatings.length === RATING_GROUPS.length;
+
+    // Fetch 25 pages (500 movies) when all preferences are selected, otherwise 20 pages
+    const pagesToFetch = isAllSelected ? 25 : 20;
+
+    console.log("Debug - Selection state:", {
+      isAllSelected,
+      selectedGenresCount: selectedGenres.length,
+      totalGenres: Object.keys(genreMap).length,
+      selectedAgeRatingsCount: selectedAgeRatings.length,
+      totalAgeRatings: AGE_RATINGS.length,
+      selectedRuntimeCount: selectedRuntime.length,
+      totalRuntime: RUNTIME_GROUPS.length,
+      selectedRatingsCount: selectedRatings.length,
+      totalRatings: RATING_GROUPS.length,
+    });
+
+    // If all genres are selected, use a single API call without genre filter
+    const genreMovies =
+      selectedGenres.length === Object.keys(genreMap).length
+        ? await Promise.all(
+            Array.from({ length: pagesToFetch }, (_, i) => i + 1).map(
+              async (pageNum) => {
+                const response = await fetch(
+                  `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.TMDB_API_KEY}&page=${pageNum}&sort_by=popularity.desc&include_adult=false&language=en-US`
+                );
+                const data = await response.json();
+                console.log(`Debug - Page ${pageNum} response:`, {
+                  totalResults: data.total_results,
+                  totalPages: data.total_pages,
+                  page: data.page,
+                  resultsCount: data.results?.length || 0,
+                });
+                return data;
+              }
+            )
+          )
+        : await Promise.all(
+            selectedGenres.flatMap((genreId) =>
+              Array.from({ length: pagesToFetch }, (_, i) => i + 1).map(
+                async (pageNum) => {
+                  const response = await fetch(
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.TMDB_API_KEY}&with_genres=${genreId}&page=${pageNum}&sort_by=popularity.desc&include_adult=false&language=en-US`
+                  );
+                  const data = await response.json();
+                  console.log(
+                    `Debug - Genre ${genreId} Page ${pageNum} response:`,
+                    {
+                      totalResults: data.total_results,
+                      totalPages: data.total_pages,
+                      page: data.page,
+                      resultsCount: data.results?.length || 0,
+                    }
+                  );
+                  return data;
+                }
+              )
+            )
+          );
 
     // Combine and deduplicate movies
-    const allMovies = genreMovies.flatMap((response) => response.results || []);
+    const allMovies = genreMovies.flatMap((response) => {
+      if (!response.results) {
+        console.log("Debug - Empty response:", response);
+        return [];
+      }
+      return response.results;
+    });
+
     const uniqueMovies = Array.from(
       new Map(allMovies.map((movie) => [movie.id, movie])).values()
     );
 
-    // Get detailed info for each movie
+    console.log("Debug - Initial movie counts:", {
+      totalMovies: allMovies.length,
+      uniqueMovies: uniqueMovies.length,
+      pagesFetched: pagesToFetch,
+      responsesReceived: genreMovies.length,
+      expectedMovies: pagesToFetch * 20, // TMDB returns 20 movies per page
+    });
+
+    // If all preferences are selected, return all movies without filtering
+    if (isAllSelected) {
+      const detailedMovies = await Promise.all(
+        uniqueMovies.map(async (movie) => {
+          try {
+            const details = await getMovieDetails(movie.id);
+            return {
+              id: movie.id,
+              title: movie.title,
+              year: new Date(movie.release_date).getFullYear(),
+              rating: details.vote_average,
+              genres: details.genres,
+              runtime: details.runtime,
+              ageRating:
+                details.release_dates?.results.find(
+                  (r) => r.iso_3166_1 === "US"
+                )?.release_dates[0]?.certification || null,
+              overview: movie.overview,
+              poster_path: movie.poster_path,
+            };
+          } catch (error) {
+            console.error(
+              `Error getting details for movie ${movie.id}:`,
+              error
+            );
+            return null;
+          }
+        })
+      );
+
+      const filteredMovies = detailedMovies.filter(Boolean);
+      console.log("Debug - Final movie count (all selected):", {
+        filteredMovies: filteredMovies.length,
+        expectedMovies: pagesToFetch * 20,
+        difference: pagesToFetch * 20 - filteredMovies.length,
+      });
+
+      return filteredMovies;
+    }
+
+    // Get detailed info for each movie with filtering
     const detailedMovies = await Promise.all(
       uniqueMovies.map(async (movie) => {
         try {
@@ -129,6 +245,18 @@ async function getMatchingMovies(
               : null;
           const ageRatingMatch = selectedAgeRatings.includes(ageRating || "");
 
+          if (!runtimeMatch || !ratingMatch || !ageRatingMatch) {
+            console.log("Debug - Movie filtered out:", {
+              title: movie.title,
+              runtime,
+              runtimeMatch,
+              rating,
+              ratingMatch,
+              ageRating,
+              ageRatingMatch,
+            });
+          }
+
           if (runtimeMatch && ratingMatch && ageRatingMatch) {
             return {
               id: movie.id,
@@ -150,12 +278,20 @@ async function getMatchingMovies(
       })
     );
 
-    return detailedMovies.filter(Boolean);
+    const filteredMovies = detailedMovies.filter(Boolean);
+    console.log("Debug - Final movie count:", {
+      filteredMovies: filteredMovies.length,
+    });
+
+    return filteredMovies;
   } catch (error) {
     console.error("Error getting matching movies:", error);
     return [];
   }
 }
+
+// Export the existing getMatchingMovies function
+export { getMatchingMovies };
 
 // Modify the generateMovieRecommendations function
 export async function generateMovieRecommendations(
@@ -181,6 +317,7 @@ export async function generateMovieRecommendations(
       throw new Error("Please select at least one rating range");
     }
 
+    // Stage 1: Finding movies
     console.log("Getting matching movies from TMDB...");
     const matchingMovies = await getMatchingMovies(
       selectedGenres,
@@ -195,6 +332,20 @@ export async function generateMovieRecommendations(
 
     console.log(`Found ${matchingMovies.length} matching movies`);
 
+    // Stage 2: Analyzing playlist
+    console.log("Analyzing playlist...");
+    // Create a numbered list of movies for the AI to choose from
+    const movieList = matchingMovies.map((movie, index) => ({
+      number: index + 1,
+      title: movie.title,
+      year: movie.year,
+      genres: movie.genres.map((g) => g.name).join(", "),
+      rating: movie.rating,
+      runtime: movie.runtime,
+      ageRating: movie.ageRating,
+      overview: movie.overview,
+    }));
+
     // Create the prompt with the matching movies
     const prompt = [
       `Based on this Spotify playlist, recommend EXACTLY ${numRecs} movies from the following list that best match its vibe:`,
@@ -206,166 +357,109 @@ export async function generateMovieRecommendations(
         )
         .join("\n"),
       "",
-      "Available movies:",
-      ...matchingMovies.map(
+      "IMPORTANT RULES:",
+      "1. You MUST select EXACTLY ${numRecs} movies from this list.",
+      "2. You MUST use the EXACT movie titles as shown in the list.",
+      "3. You CANNOT suggest any movies that are not in this list.",
+      "4. Each movie must be selected by its number from the list.",
+      "",
+      "Available movies (select by number):",
+      ...movieList.map(
         (movie) =>
-          `- ${movie.title} (${movie.year}): ${movie.genres
-            .map((g) => g.name)
-            .join(", ")}, ` +
+          `${movie.number}. "${movie.title}" (${movie.year}): ${movie.genres}, ` +
           `Rating: ${movie.rating}, Runtime: ${movie.runtime}min, Age Rating: ${movie.ageRating}, ` +
           `Overview: ${movie.overview}`
       ),
       "",
-      `IMPORTANT: You MUST return EXACTLY ${numRecs} movies. Format response as a JSON array with objects containing: title, year, reason (max 700 chars).`,
+      `Return a JSON array with EXACTLY ${numRecs} objects, each containing:`,
+      `{
+        "number": number from the list above,
+        "title": "EXACT movie title from the list above",
+        "year": year number,
+        "reason": "explanation of how it connects with the playlist (max 700 chars)"
+      }`,
       "",
       "For each movie, explain how it connects with the playlist by referencing specific songs and their themes, moods, or styles. For example: 'The movie's themes of [theme] connect with [Song Name]'s [specific aspect], while its [movie aspect] matches the mood of [Another Song]'.",
     ].join("\n");
 
-    let attempts = 0;
-    const maxAttempts = 3;
-    let detailedRecommendations: MovieRecommendation[] = [];
-    let lastContent: string | undefined;
+    // Stage 3: Receiving recommendations
+    console.log("Receiving recommendations from AI...");
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.7,
+      max_tokens: 1000,
+    });
 
-    while (
-      attempts < maxAttempts &&
-      detailedRecommendations.length !== numRecs
-    ) {
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.7,
-        max_tokens: 1000,
-      });
-
-      const content = completion.choices[0].message.content;
-      if (!content) {
-        throw new Error("No response from OpenAI API");
-      }
-      lastContent = content;
-
-      try {
-        const jsonMatch = content.match(/\[[\s\S]*\]/);
-        if (!jsonMatch) {
-          // Try to find any JSON-like structure
-          const anyJsonMatch = content.match(/\{[\s\S]*\}/);
-          if (anyJsonMatch) {
-            try {
-              // Try to parse as a single object and wrap it in an array
-              const singleObject = JSON.parse(anyJsonMatch[0]);
-              const recommendations = [singleObject];
-              if (!Array.isArray(recommendations)) {
-                throw new Error("Response is not an array");
-              }
-              // Continue with the rest of the processing...
-            } catch (parseError) {
-              throw new Error("Invalid JSON format in response");
-            }
-          } else {
-            throw new Error("No valid JSON found in the response");
-          }
-        }
-
-        const recommendations = JSON.parse(jsonMatch[0]);
-        if (!Array.isArray(recommendations)) {
-          throw new Error("Response is not an array");
-        }
-
-        // Map the recommendations to the full movie details
-        detailedRecommendations = recommendations
-          .map((rec) => {
-            const movie = matchingMovies.find((m) => m.title === rec.title);
-            if (!movie) return null;
-
-            return {
-              id: movie.id,
-              title: movie.title,
-              year: movie.year,
-              reason: rec.reason,
-              posterUrl: movie.poster_path
-                ? `${TMDB_IMAGE_BASE_URL}${movie.poster_path}`
-                : null,
-              rating: movie.rating,
-              genres: movie.genres,
-              runtime: movie.runtime,
-              ageRating: movie.ageRating,
-            };
-          })
-          .filter(Boolean);
-
-        // If we don't have enough recommendations, try again
-        if (detailedRecommendations.length !== numRecs) {
-          attempts++;
-          if (attempts < maxAttempts) {
-            console.log(
-              `Attempt ${attempts}: Got ${detailedRecommendations.length} recommendations, retrying...`
-            );
-            continue;
-          }
-        }
-      } catch (error) {
-        console.error("Error parsing response:", error);
-        attempts++;
-        if (attempts < maxAttempts) {
-          console.log(
-            `Attempt ${attempts}: Error parsing response, retrying...`
-          );
-          continue;
-        }
-      }
+    const content = completion.choices[0].message.content;
+    if (!content) {
+      throw new Error("No response from OpenAI API");
     }
 
-    // If we still don't have enough recommendations after all attempts,
-    // try to extract any valid movie recommendations from the text
-    if (detailedRecommendations.length !== numRecs && lastContent) {
-      try {
-        const lines = lastContent.split("\n");
-        const extractedMovies = [];
-
-        for (const line of lines) {
-          if (line.includes("title") || line.includes("Title")) {
-            const titleMatch =
-              line.match(/"title"\s*:\s*"([^"]+)"/) ||
-              line.match(/Title:\s*([^\n]+)/) ||
-              line.match(/Movie:\s*([^\n]+)/);
-
-            if (titleMatch) {
-              const title = titleMatch[1].trim();
-              const movie = matchingMovies.find((m) => m.title === title);
-              if (movie) {
-                extractedMovies.push({
-                  id: movie.id,
-                  title: movie.title,
-                  year: movie.year,
-                  reason: "Recommended based on your playlist's vibe",
-                  posterUrl: movie.poster_path
-                    ? `${TMDB_IMAGE_BASE_URL}${movie.poster_path}`
-                    : null,
-                  rating: movie.rating,
-                  genres: movie.genres,
-                  runtime: movie.runtime,
-                  ageRating: movie.ageRating,
-                });
-              }
-            }
-          }
-        }
-
-        if (extractedMovies.length > 0) {
-          detailedRecommendations = extractedMovies;
-        }
-      } catch (extractError) {
-        console.error("Error extracting movies from text:", extractError);
+    try {
+      const jsonMatch = content.match(/\[[\s\S]*\]/);
+      if (!jsonMatch) {
+        throw new Error("No valid JSON array found in response");
       }
-    }
 
-    // If we still don't have enough recommendations, throw an error
-    if (detailedRecommendations.length !== numRecs) {
+      const recommendations = JSON.parse(jsonMatch[0]);
+      if (!Array.isArray(recommendations)) {
+        throw new Error("Response is not an array");
+      }
+
+      // Validate that all recommendations are from the list
+      const invalidRecommendations = recommendations.filter(
+        (rec) => !movieList.some((movie) => movie.title === rec.title)
+      );
+
+      if (invalidRecommendations.length > 0) {
+        console.error("Invalid recommendations found:", invalidRecommendations);
+        throw new Error(
+          "AI generated recommendations not from the provided list"
+        );
+      }
+
+      // Map the recommendations to the full movie details
+      const detailedRecommendations = recommendations
+        .map((rec) => {
+          const movie = matchingMovies.find((m) => m.title === rec.title);
+          if (!movie) {
+            console.error(`Movie not found in list: ${rec.title}`);
+            return null;
+          }
+
+          return {
+            id: movie.id,
+            title: movie.title,
+            year: movie.year,
+            reason: rec.reason,
+            posterUrl: movie.poster_path
+              ? `${TMDB_IMAGE_BASE_URL}${movie.poster_path}`
+              : null,
+            rating: movie.rating,
+            genres: movie.genres,
+            runtime: movie.runtime,
+            ageRating: movie.ageRating,
+          };
+        })
+        .filter(Boolean);
+
+      // If we don't have enough recommendations, throw an error
+      if (detailedRecommendations.length !== numRecs) {
+        throw new Error(
+          `Failed to generate exactly ${numRecs} movie recommendations. Got ${detailedRecommendations.length} instead.`
+        );
+      }
+
+      return detailedRecommendations;
+    } catch (error) {
+      console.error("Error parsing response:", error);
       throw new Error(
-        `Failed to generate exactly ${numRecs} movie recommendations. Got ${detailedRecommendations.length} instead.`
+        `Failed to generate movie recommendations: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
       );
     }
-
-    return detailedRecommendations;
   } catch (error) {
     console.error("OpenAI API error:", error);
     throw new Error(

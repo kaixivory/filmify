@@ -4,7 +4,10 @@ dotenv.config();
 
 import express, { Request, Response } from "express";
 import { getPlaylistDetails } from "./services/spotify";
-import { generateMovieRecommendations } from "./services/openai";
+import {
+  generateMovieRecommendations,
+  getMatchingMovies,
+} from "./services/openai";
 import { getGenres } from "./services/tmdb";
 import cors from "cors";
 import movieRoutes from "./routes/movies";
@@ -92,10 +95,31 @@ app.post("/api/playlist", (req: Request, res: Response) => {
         return res.status(400).json({ error: "Spotify link is required" });
       }
 
+      // Set up SSE for loading stages
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+
+      const sendStage = (stage: number) => {
+        res.write(`data: ${JSON.stringify({ stage })}\n\n`);
+      };
+
       console.log("Processing playlist:", spotifyLink);
       const playlistDetails = await getPlaylistDetails(spotifyLink);
       console.log("✓ Playlist details fetched");
 
+      // Stage 0: Finding movies
+      sendStage(0);
+      const matchingMovies = await getMatchingMovies(
+        selectedGenres,
+        selectedAgeRatings,
+        selectedRuntime,
+        selectedRatings
+      );
+      console.log(`Found ${matchingMovies.length} matching movies`);
+
+      // Stage 1: Analyzing playlist
+      sendStage(1);
       const movieRecommendations = await generateMovieRecommendations(
         playlistDetails,
         numRecs,
@@ -106,10 +130,19 @@ app.post("/api/playlist", (req: Request, res: Response) => {
       );
       console.log("✓ Movie recommendations generated");
 
-      res.json({
-        playlist: playlistDetails,
-        recommendations: movieRecommendations,
-      });
+      // Stage 2: Receiving recommendations
+      sendStage(2);
+      // Wait 3 seconds before showing results
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      // Send final response
+      res.write(
+        `data: ${JSON.stringify({
+          playlist: playlistDetails,
+          recommendations: movieRecommendations,
+        })}\n\n`
+      );
+      res.end();
     } catch (error) {
       console.error(
         "Error:",

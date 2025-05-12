@@ -24,7 +24,7 @@ interface RatingGroup {
   value: string;
 }
 
-function App() {
+export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [spotifyLink, setSpotifyLink] = useState("");
   const [numRecs, setNumRecs] = useState(5);
@@ -44,6 +44,7 @@ function App() {
   const [selectedRatings, setSelectedRatings] = useState<string[]>(
     RATING_GROUPS.map((group: RatingGroup) => group.value)
   );
+  const [loadingStage, setLoadingStage] = useState(0);
 
   useEffect(() => {
     // Fetch genres when the app loads
@@ -137,10 +138,10 @@ function App() {
     setError(null);
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleGenerate = async () => {
     setIsLoading(true);
     setError(null);
+    setLoadingStage(0);
 
     // Validate selections
     if (selectedGenres.length === 0) {
@@ -191,16 +192,41 @@ function App() {
         );
       }
 
-      const data = await response.json();
-      setRecommendations(data.recommendations);
-      setPlaylistName(data.playlist.name);
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("Failed to get response reader");
+      }
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = JSON.parse(line.slice(6));
+            if (data.stage !== undefined) {
+              setLoadingStage(data.stage);
+            } else if (data.playlist && data.recommendations) {
+              setPlaylistName(data.playlist.name);
+              setRecommendations(data.recommendations);
+            }
+          }
+        }
+      }
     } catch (error) {
-      console.error("Error:", error);
       setError(
         error instanceof Error ? error.message : "An unexpected error occurred"
       );
     } finally {
       setIsLoading(false);
+      setLoadingStage(0);
     }
   };
 
@@ -274,7 +300,7 @@ function App() {
           onChange={handleInputChange}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !isLoading) {
-              handleSubmit(e);
+              handleGenerate();
             }
           }}
           className={`rounded-full px-4 py-2 w-full md:w-1/2 ${
@@ -333,7 +359,7 @@ function App() {
         </div>
 
         <button
-          onClick={handleSubmit}
+          onClick={handleGenerate}
           disabled={isLoading}
           className={`${
             isDarkMode
@@ -383,6 +409,7 @@ function App() {
           error={error}
           isDarkMode={isDarkMode}
           playlistName={playlistName}
+          loadingStage={loadingStage}
         />
 
         <div className="mt-4 mb-24 space-y-8 px-4 md:px-8 lg:px-12 w-full">
@@ -524,5 +551,3 @@ function App() {
     </div>
   );
 }
-
-export default App;

@@ -1,14 +1,15 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { MovieRecommendation } from "../types/movie";
 import html2canvas from "html2canvas";
 import { createRoot } from "react-dom/client";
 
 interface MovieRecommendationsProps {
-  recommendations: MovieRecommendation[] | null;
+  recommendations: MovieRecommendation[];
   isLoading: boolean;
   error: string | null;
   isDarkMode: boolean;
   playlistName: string;
+  loadingStage: number;
 }
 
 // Update the helper function
@@ -2267,6 +2268,7 @@ export function MovieRecommendations({
   error,
   isDarkMode,
   playlistName,
+  loadingStage,
 }: MovieRecommendationsProps) {
   const sharePreviewRef = useRef<HTMLDivElement>(null);
   const [showPreview, setShowPreview] = useState(false);
@@ -2492,8 +2494,28 @@ export function MovieRecommendations({
   };
 
   if (isLoading) {
+    const stages = [
+      "Finding movies that match your preferences...",
+      "Analyzing your playlist...",
+      "Receiving recommendations...",
+    ];
+
     return (
-      <div className="flex justify-center items-center py-8">
+      <div className="flex flex-col justify-center items-center py-8 gap-4">
+        <p
+          className={`${
+            isDarkMode ? "text-[#faf9f6]" : "text-[#0b1215]"
+          } text-lg font-semibold`}
+        >
+          {stages[loadingStage]}
+        </p>
+        <p
+          className={`${
+            isDarkMode ? "text-[#faf9f6]/80" : "text-[#0b1215]/80"
+          } text-sm`}
+        >
+          This may take a moment
+        </p>
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-[#0ee65e] animate-bounce [animation-delay:-0.3s]"></div>
           <div className="w-2 h-2 rounded-full bg-[#0ee65e] animate-bounce [animation-delay:-0.15s]"></div>

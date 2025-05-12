@@ -36,7 +36,7 @@ interface PreferencesSelectorProps {
   onRatingDeselectAll: () => void;
 }
 
-export const AGE_RATINGS = ["G", "PG", "PG-13", "R", "NC-17"];
+export const AGE_RATINGS = ["G", "PG", "PG-13", "R"];
 export const RUNTIME_GROUPS: RuntimeGroup[] = [
   { label: "< 1 hour", value: "short" },
   { label: "1-2 hours", value: "medium" },

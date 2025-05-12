@@ -5,7 +5,7 @@ import {
   AGE_RATINGS,
   RUNTIME_GROUPS,
   RATING_GROUPS,
-} from "./components/GenreSelector";
+} from "./components/Preferences";
 import { MovieRecommendation } from "./types/movie";
 import { API_URL } from "./config";
 

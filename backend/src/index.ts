@@ -148,11 +148,16 @@ app.post("/api/playlist", (req: Request, res: Response) => {
         "Error:",
         error instanceof Error ? error.message : "An unexpected error occurred"
       );
-      if (error instanceof Error) {
-        res.status(400).json({ error: error.message });
-      } else {
-        res.status(500).json({ error: "An unexpected error occurred" });
-      }
+      // Send error as SSE event
+      res.write(
+        `data: ${JSON.stringify({
+          error:
+            error instanceof Error
+              ? error.message
+              : "An unexpected error occurred",
+        })}\n\n`
+      );
+      res.end();
     }
   };
 

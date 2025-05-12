@@ -211,7 +211,12 @@ export default function App() {
         for (const line of lines) {
           if (line.startsWith("data: ")) {
             const data = JSON.parse(line.slice(6));
-            if (data.stage !== undefined) {
+            if (data.error) {
+              setError(data.error);
+              setIsLoading(false);
+              setLoadingStage(0);
+              break;
+            } else if (data.stage !== undefined) {
               setLoadingStage(data.stage);
             } else if (data.playlist && data.recommendations) {
               setPlaylistName(data.playlist.name);

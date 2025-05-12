@@ -362,6 +362,13 @@ export async function generateMovieRecommendations(
       throw new Error("No valid movies found after filtering null parameters");
     }
 
+    // Check if there are enough movies available for recommendations
+    if (movieList.length < numRecs) {
+      throw new Error(
+        `Not enough movies found to match preferences. Please adjust your preferences and try again.`
+      );
+    }
+
     // Create the prompt with the matching movies
     const prompt = [
       `Based on this Spotify playlist, recommend EXACTLY ${numRecs} movies from the following list that best match its vibe:`,

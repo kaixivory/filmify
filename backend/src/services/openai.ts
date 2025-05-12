@@ -378,6 +378,7 @@ export async function generateMovieRecommendations(
       "2. You MUST use the EXACT movie titles as shown in the list.",
       "3. You CANNOT suggest any movies that are not in this list.",
       "4. Each movie must be selected by its number from the list.",
+      "5. CRITICAL: You MUST NOT recommend the same movie twice in your recommendations. Each movie in your response must be unique.",
       "",
       "Available movies (select by number):",
       ...movieList.map(
@@ -387,13 +388,22 @@ export async function generateMovieRecommendations(
           `Overview: ${movie.overview}`
       ),
       "",
-      `Return a JSON array with EXACTLY ${numRecs} objects, each containing:`,
-      `{
-        "number": number from the list above,
-        "title": "EXACT movie title from the list above",
-        "year": year number,
-        "reason": "explanation of how it connects with the playlist (max 700 chars)"
-      }`,
+      "RESPONSE FORMAT:",
+      "You MUST respond with a valid JSON array containing EXACTLY ${numRecs} objects. Example format:",
+      `[
+        {
+          "number": 1,
+          "title": "Movie Title",
+          "year": 2023,
+          "reason": "This movie matches the playlist because..."
+        },
+        {
+          "number": 2,
+          "title": "Another Movie",
+          "year": 2022,
+          "reason": "This movie connects with the playlist through..."
+        }
+      ]`,
       "",
       "For each movie, explain how it connects with the playlist by referencing specific songs and their themes, moods, or styles. For example: 'The movie's themes of [theme] connect with [Song Name]'s [specific aspect], while its [movie aspect] matches the mood of [Another Song]'.",
     ].join("\n");

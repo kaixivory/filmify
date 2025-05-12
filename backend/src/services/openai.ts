@@ -335,16 +335,32 @@ export async function generateMovieRecommendations(
     // Stage 2: Analyzing playlist
     console.log("Analyzing playlist...");
     // Create a numbered list of movies for the AI to choose from
-    const movieList = matchingMovies.map((movie, index) => ({
-      number: index + 1,
-      title: movie.title,
-      year: movie.year,
-      genres: movie.genres.map((g) => g.name).join(", "),
-      rating: movie.rating,
-      runtime: movie.runtime,
-      ageRating: movie.ageRating,
-      overview: movie.overview,
-    }));
+    const movieList = matchingMovies
+      .filter(
+        (movie) =>
+          movie.title &&
+          movie.year &&
+          movie.genres &&
+          movie.genres.length > 0 &&
+          movie.rating &&
+          movie.runtime &&
+          movie.ageRating &&
+          movie.overview
+      )
+      .map((movie, index) => ({
+        number: index + 1,
+        title: movie.title,
+        year: movie.year,
+        genres: movie.genres.map((g) => g.name).join(", "),
+        rating: movie.rating,
+        runtime: movie.runtime,
+        ageRating: movie.ageRating,
+        overview: movie.overview,
+      }));
+
+    if (movieList.length === 0) {
+      throw new Error("No valid movies found after filtering null parameters");
+    }
 
     // Create the prompt with the matching movies
     const prompt = [
